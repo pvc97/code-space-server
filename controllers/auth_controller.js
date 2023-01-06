@@ -1,10 +1,60 @@
 const jwt = require('jsonwebtoken');
+const bcryptjs = require('bcryptjs');
+const { User, sequelize } = require('../models');
 
 // In production, this should be stored in a database
 let refreshTokens = [];
 
-const genereateAccessToken = (user) => {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15s' });
+const createAccessToken = (user) => {
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: 15 });
+};
+
+const createRefreshToken = (user) => {
+  return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: 120,
+  });
+};
+
+const decodeRefreshToken = (refreshToken) =>
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+const register = async (req, res) => {
+  try {
+    const { name, email, password, role } = req.body;
+
+    const hashedPassword = await bcryptjs.hash(password, 10);
+
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role,
+    });
+
+    // Remove hashed password
+    delete user.dataValues.password;
+
+    const accessToken = createAccessToken(user.dataValues);
+    const refreshToken = createRefreshToken(user.dataValues);
+
+    const decodedRefreshToken = decodeRefreshToken(refreshToken);
+
+    const expires = decodedRefreshToken.exp - decodedRefreshToken.iat;
+
+    console.log(expires);
+
+    user.refreshTokens.push({
+      token: refreshToken,
+    });
+
+    console.log(user);
+    await user.save();
+
+    res.send({ accessToken, refreshToken });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
 };
 
 const login = (req, res) => {
@@ -43,6 +93,7 @@ const refreshToken = (req, res) => {
 };
 
 module.exports = {
+  register,
   login,
   logout,
   refreshToken,
