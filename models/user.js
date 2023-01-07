@@ -7,8 +7,9 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ Role }) {
+    static associate({ Role, RefreshToken }) {
       this.belongsTo(Role, { foreignKey: 'id', onDelete: 'CASCADE' });
+      this.hasMany(RefreshToken, { foreignKey: 'userId' });
     }
   }
   User.init(
@@ -40,6 +41,10 @@ module.exports = (sequelize, DataTypes) => {
       roleId: {
         type: DataTypes.STRING,
         allowNull: false,
+        references: {
+          model: 'roles',
+          key: 'id',
+        },
       },
     },
     {
