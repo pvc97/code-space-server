@@ -20,37 +20,33 @@ const decodeRefreshToken = (refreshToken) =>
 
 const register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { username, name, email, password, roleId } = req.body;
 
     const hashedPassword = await bcryptjs.hash(password, 10);
 
     const user = await User.create({
+      username,
       name,
       email,
       password: hashedPassword,
-      role,
+      roleId,
     });
 
-    // Remove hashed password
-    delete user.dataValues.password;
+    // // Remove hashed password
+    // delete user.dataValues.password;
 
-    const accessToken = createAccessToken(user.dataValues);
-    const refreshToken = createRefreshToken(user.dataValues);
+    // const accessToken = createAccessToken(user.dataValues);
+    // const refreshToken = createRefreshToken(user.dataValues);
 
-    const decodedRefreshToken = decodeRefreshToken(refreshToken);
+    // const decodedRefreshToken = decodeRefreshToken(refreshToken);
 
-    const expires = decodedRefreshToken.exp - decodedRefreshToken.iat;
+    // const expires = decodedRefreshToken.exp - decodedRefreshToken.iat;
 
-    console.log(expires);
+    // console.log(expires);
 
-    user.refreshTokens.push({
-      token: refreshToken,
-    });
-
-    console.log(user);
     await user.save();
 
-    res.send({ accessToken, refreshToken });
+    res.send({ user });
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
