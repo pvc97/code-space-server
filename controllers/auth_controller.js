@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcryptjs = require('bcryptjs');
-const { User, Role } = require('../models');
+const { User, Role, RefreshToken } = require('../models');
 
 // In production, this should be stored in a database
 let refreshTokens = [];
@@ -38,16 +38,25 @@ const register = async (req, res) => {
     // Remove hashed password
     delete user.dataValues.password;
 
-    // const accessToken = createAccessToken(user.dataValues);
-    // const refreshToken = createRefreshToken(user.dataValues);
+    const accessToken = createAccessToken(user.dataValues);
+    const refreshToken = createRefreshToken(user.dataValues);
 
-    // const decodedRefreshToken = decodeRefreshToken(refreshToken);
+    user.dataValues.accessToken = accessToken;
+    user.dataValues.refreshToken = refreshToken;
 
-    // const expires = decodedRefreshToken.exp - decodedRefreshToken.iat;
+    const decodedRefreshToken = decodeRefreshToken(refreshToken);
+    const expiresAt = new Date(decodedRefreshToken.exp * 1000);
 
-    // console.log(expires);
+    // console.log(new Date().toISOString());
+    // console.log(new Date(expiresAt * 1000).toISOString());
 
-    res.send({ user });
+    await RefreshToken.create({
+      token: refreshToken,
+      userId: user.id,
+      expiresAt,
+    });
+
+    res.send({ data: { accessToken, refreshToken } });
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
