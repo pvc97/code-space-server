@@ -9,14 +9,13 @@ const createAccessToken = (user) => {
   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: 15 });
 };
 
-const createRefreshToken = (user) => {
-  return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: 120,
+const createToken = (data, tokenSecrete, expiresIn) => {
+  return jwt.sign(data, tokenSecrete, {
+    expiresIn,
   });
 };
 
-const decodeRefreshToken = (refreshToken) =>
-  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+const decodeToken = (token, tokenSecrete) => jwt.verify(token, tokenSecrete);
 
 const register = async (req, res) => {
   try {
@@ -38,13 +37,24 @@ const register = async (req, res) => {
     // Remove hashed password
     delete user.dataValues.password;
 
-    const accessToken = createAccessToken(user.dataValues);
-    const refreshToken = createRefreshToken(user.dataValues);
+    const accessToken = createToken(
+      user.dataValues,
+      process.env.ACCESS_TOKEN_SECRET,
+      150 // 5 minutes
+    );
+    const refreshToken = createToken(
+      user.dataValues,
+      process.env.REFRESH_TOKEN_SECRET,
+      604800 // 7 days
+    );
 
     user.dataValues.accessToken = accessToken;
     user.dataValues.refreshToken = refreshToken;
 
-    const decodedRefreshToken = decodeRefreshToken(refreshToken);
+    const decodedRefreshToken = decodeToken(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
     const expiresAt = new Date(decodedRefreshToken.exp * 1000);
 
     // console.log(new Date().toISOString());
