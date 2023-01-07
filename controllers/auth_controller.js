@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcryptjs = require('bcryptjs');
-const { User, sequelize } = require('../models');
+const { User, Role } = require('../models');
 
 // In production, this should be stored in a database
 let refreshTokens = [];
@@ -32,8 +32,11 @@ const register = async (req, res) => {
       roleId,
     });
 
-    // // Remove hashed password
-    // delete user.dataValues.password;
+    const role = await Role.findByPk(user.roleId);
+    user.dataValues.role = role.type;
+
+    // Remove hashed password
+    delete user.dataValues.password;
 
     // const accessToken = createAccessToken(user.dataValues);
     // const refreshToken = createRefreshToken(user.dataValues);
@@ -43,8 +46,6 @@ const register = async (req, res) => {
     // const expires = decodedRefreshToken.exp - decodedRefreshToken.iat;
 
     // console.log(expires);
-
-    await user.save();
 
     res.send({ user });
   } catch (error) {
