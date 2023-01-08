@@ -49,7 +49,7 @@ const register = async (req, res) => {
       expiresAt,
     });
 
-    res.json({ data: { accessToken, refreshToken } });
+    res.status(201).json({ data: { accessToken, refreshToken } });
   } catch (error) {
     console.log(error);
     res.status(500).send({ error: INTERNAL_SERVER_ERROR_MESSAGE });
