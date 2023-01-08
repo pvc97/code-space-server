@@ -15,6 +15,7 @@ const getUserInfo = async (req, res) => {
       ],
     });
 
+    // Add roleType to user object and remove role object
     user.dataValues.roleType = user.role.type;
     delete user.dataValues.role;
 

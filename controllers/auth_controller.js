@@ -61,20 +61,28 @@ const login = async (req, res) => {
 
     const user = await User.findOne({
       where: { username },
+      include: [
+        {
+          model: Role,
+          as: 'role',
+          attributes: ['type'],
+        },
+      ],
     });
 
     if (!user) {
       return res.status(401).send({ error: LOGIN_ERROR_MESSAGE });
     }
 
+    // Add roleType to user object and remove role object
+    user.dataValues.roleType = user.role.type;
+    delete user.dataValues.role;
+
     const isValidPassword = await bcryptjs.compare(password, user.password);
 
     if (!isValidPassword) {
       return res.status(401).send({ error: LOGIN_ERROR_MESSAGE });
     }
-
-    const role = await Role.findByPk(user.roleId);
-    user.dataValues.role = role.type;
 
     const accessToken = generateAccessToken(user.dataValues);
     const refreshToken = generateRefreshToken(user.dataValues);

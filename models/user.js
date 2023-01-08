@@ -59,6 +59,9 @@ module.exports = (sequelize, DataTypes) => {
           attributes: { exclude: ['password'] },
         },
       },
+      defaultScope: {
+        attributes: { exclude: ['roleId'] },
+      },
     }
   );
   return User;
