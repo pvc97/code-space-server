@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate({ User }) {
-      this.belongsTo(User, { foreignKey: 'id', onDelete: 'CASCADE' });
+      this.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
     }
   }
   RefreshToken.init(

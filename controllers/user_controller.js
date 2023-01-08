@@ -5,7 +5,7 @@ const { INTERNAL_SERVER_ERROR_MESSAGE } = require('../constants/strings');
 const getUserInfo = async (req, res) => {
   try {
     const userId = req.user.id;
-    const user = await User.scope(User.withoutPassword).findByPk(userId, {
+    const user = await User.findByPk(userId, {
       include: [
         {
           model: Role,

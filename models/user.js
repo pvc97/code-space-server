@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   // Static fields for user
-  User.withoutPassword = 'withoutPassword';
+  User.withPassword = 'withPassword';
   // =======================
 
   User.init(
@@ -55,12 +55,12 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: 'User',
       scopes: {
-        withoutPassword: {
-          attributes: { exclude: ['password'] },
+        withPassword: {
+          attributes: { exclude: ['roleId'] },
         },
       },
       defaultScope: {
-        attributes: { exclude: ['roleId'] },
+        attributes: { exclude: ['roleId', 'password'] },
       },
     }
   );

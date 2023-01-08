@@ -59,7 +59,7 @@ const login = async (req, res) => {
     // Authenticate User
     const { username, password } = req.body;
 
-    const user = await User.findOne({
+    const user = await User.scope(User.withPassword).findOne({
       where: { username },
       include: [
         {
@@ -148,12 +148,19 @@ const refreshToken = async (req, res) => {
       });
     }
 
-    const user = await User.scope(User.withoutPassword).findByPk(
-      decodedRefreshToken.id
-    );
+    const user = await User.findByPk(decodedRefreshToken.id, {
+      include: [
+        {
+          model: Role,
+          as: 'role',
+          attributes: ['type'],
+        },
+      ],
+    });
 
-    const role = await Role.findByPk(user.roleId);
-    user.dataValues.role = role.type;
+    // Add roleType to user object and remove role object
+    user.dataValues.roleType = user.role.type;
+    delete user.dataValues.role;
 
     const accessToken = generateAccessToken(user.dataValues);
     const newRefreshToken = generateRefreshToken(user.dataValues);
