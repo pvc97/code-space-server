@@ -5,7 +5,7 @@ const { RefreshToken, Sequelize } = require('../models');
 const job = new CronJob('00 30 23 * * 0-6', async () => {
   const now = new Date();
 
-  console.log(`Cron job running at: ${now.toISOString()}`);
+  console.log(`Delete expired refresh token at: ${now.toISOString()}`);
 
   await RefreshToken.destroy({
     where: {

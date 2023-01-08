@@ -9,6 +9,10 @@ const {
 } = require('../utils/auth');
 
 const { convertTimeStampToDate } = require('../utils/date_time');
+const {
+  LOGIN_ERROR_MESSAGE,
+  INTERNAL_SERVER_ERROR_MESSAGE,
+} = require('../constants/strings');
 
 // In production, this should be stored in a database
 let refreshTokens = [];
@@ -45,9 +49,10 @@ const register = async (req, res) => {
       expiresAt,
     });
 
-    res.send({ data: { accessToken, refreshToken } });
+    res.json({ data: { accessToken, refreshToken } });
   } catch (error) {
-    res.status(500).send(error);
+    console.log(error);
+    res.status(500).send({ error: INTERNAL_SERVER_ERROR_MESSAGE });
   }
 };
 
@@ -59,13 +64,13 @@ const login = async (req, res) => {
     const user = await User.findOne({ where: { username } });
 
     if (!user) {
-      return res.status(401).send({ error: 'Invalid email or password' });
+      return res.status(401).send({ error: LOGIN_ERROR_MESSAGE });
     }
 
     const isValidPassword = await bcryptjs.compare(password, user.password);
 
     if (!isValidPassword) {
-      return res.status(401).send({ error: 'Invalid email or password' });
+      return res.status(401).send({ error: LOGIN_ERROR_MESSAGE });
     }
 
     const role = await Role.findByPk(user.roleId);
@@ -85,7 +90,8 @@ const login = async (req, res) => {
 
     res.json({ data: { accessToken, refreshToken } });
   } catch (error) {
-    res.status(500).send(error);
+    console.log(error);
+    res.status(500).send({ error: INTERNAL_SERVER_ERROR_MESSAGE });
   }
 };
 
