@@ -95,9 +95,21 @@ const login = async (req, res) => {
   }
 };
 
-const logout = (req, res) => {
-  refreshTokens = refreshTokens.filter((token) => token !== req.body.token);
-  res.sendStatus(204);
+const logout = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    await RefreshToken.destroy({
+      where: {
+        token: refreshToken,
+      },
+    });
+
+    res.sendStatus(204);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ error: INTERNAL_SERVER_ERROR_MESSAGE });
+  }
 };
 
 const refreshToken = (req, res) => {
