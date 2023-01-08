@@ -1,13 +1,13 @@
 const jwt = require('jsonwebtoken');
 const bcryptjs = require('bcryptjs');
 const { User, Role, RefreshToken } = require('../models');
+const {
+  ACCESS_TOKEN_DURATION,
+  REFRESH_TOKEN_DURATION,
+} = require('../constants/constants');
 
 // In production, this should be stored in a database
 let refreshTokens = [];
-
-const createAccessToken = (user) => {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: 15 });
-};
 
 const createToken = (data, tokenSecrete, expiresIn) => {
   return jwt.sign(data, tokenSecrete, {
@@ -40,12 +40,12 @@ const register = async (req, res) => {
     const accessToken = createToken(
       user.dataValues,
       process.env.ACCESS_TOKEN_SECRET,
-      150 // 5 minutes
+      ACCESS_TOKEN_DURATION
     );
     const refreshToken = createToken(
       user.dataValues,
       process.env.REFRESH_TOKEN_SECRET,
-      604800 // 7 days
+      REFRESH_TOKEN_DURATION
     );
 
     user.dataValues.accessToken = accessToken;
@@ -68,7 +68,6 @@ const register = async (req, res) => {
 
     res.send({ data: { accessToken, refreshToken } });
   } catch (error) {
-    console.log(error);
     res.status(500).send(error);
   }
 };
