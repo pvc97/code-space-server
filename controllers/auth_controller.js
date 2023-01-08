@@ -2,20 +2,16 @@ const jwt = require('jsonwebtoken');
 const bcryptjs = require('bcryptjs');
 const { User, Role, RefreshToken } = require('../models');
 const {
-  ACCESS_TOKEN_DURATION,
-  REFRESH_TOKEN_DURATION,
-} = require('../constants/constants');
+  generateAccessToken,
+  generateRefreshToken,
+  decodeAccessToken,
+  decodeRefreshToken,
+} = require('../utils/auth');
+
+const { convertTimeStampToDate } = require('../utils/date_time');
 
 // In production, this should be stored in a database
 let refreshTokens = [];
-
-const createToken = (data, tokenSecrete, expiresIn) => {
-  return jwt.sign(data, tokenSecrete, {
-    expiresIn,
-  });
-};
-
-const decodeToken = (token, tokenSecrete) => jwt.verify(token, tokenSecrete);
 
 const register = async (req, res) => {
   try {
@@ -34,28 +30,11 @@ const register = async (req, res) => {
     const role = await Role.findByPk(user.roleId);
     user.dataValues.role = role.type;
 
-    // Remove hashed password
-    delete user.dataValues.password;
+    const accessToken = generateAccessToken(user.dataValues);
+    const refreshToken = generateRefreshToken(user.dataValues);
 
-    const accessToken = createToken(
-      user.dataValues,
-      process.env.ACCESS_TOKEN_SECRET,
-      ACCESS_TOKEN_DURATION
-    );
-    const refreshToken = createToken(
-      user.dataValues,
-      process.env.REFRESH_TOKEN_SECRET,
-      REFRESH_TOKEN_DURATION
-    );
-
-    user.dataValues.accessToken = accessToken;
-    user.dataValues.refreshToken = refreshToken;
-
-    const decodedRefreshToken = decodeToken(
-      refreshToken,
-      process.env.REFRESH_TOKEN_SECRET
-    );
-    const expiresAt = new Date(decodedRefreshToken.exp * 1000);
+    const decodedRefreshToken = decodeRefreshToken(refreshToken);
+    const expiresAt = convertTimeStampToDate(decodedRefreshToken.exp);
 
     // console.log(new Date().toISOString());
     // console.log(new Date(expiresAt * 1000).toISOString());
@@ -72,18 +51,42 @@ const register = async (req, res) => {
   }
 };
 
-const login = (req, res) => {
-  // Authenticate User
-  const { username } = req.body;
+const login = async (req, res) => {
+  try {
+    // Authenticate User
+    const { username, password } = req.body;
 
-  const accessToken = genereateAccessToken({ name: username });
-  const refreshToken = jwt.sign(
-    { name: username },
-    process.env.REFRESH_TOKEN_SECRET
-  );
-  refreshTokens.push(refreshToken);
+    const user = await User.findOne({ where: { username } });
 
-  res.json({ accessToken, refreshToken });
+    if (!user) {
+      return res.status(401).send({ error: 'Invalid email or password' });
+    }
+
+    const isValidPassword = await bcryptjs.compare(password, user.password);
+
+    if (!isValidPassword) {
+      return res.status(401).send({ error: 'Invalid email or password' });
+    }
+
+    const role = await Role.findByPk(user.roleId);
+    user.dataValues.role = role.type;
+
+    const accessToken = generateAccessToken(user.dataValues);
+    const refreshToken = generateRefreshToken(user.dataValues);
+
+    const decodedRefreshToken = decodeRefreshToken(refreshToken);
+    const expiresAt = convertTimeStampToDate(decodedRefreshToken.exp);
+
+    await RefreshToken.create({
+      token: refreshToken,
+      userId: user.id,
+      expiresAt,
+    });
+
+    res.json({ data: { accessToken, refreshToken } });
+  } catch (error) {
+    res.status(500).send(error);
+  }
 };
 
 const logout = (req, res) => {
