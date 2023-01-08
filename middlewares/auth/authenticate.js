@@ -21,9 +21,6 @@ const authenticate = (req, res, next) => {
     // Attach the decoded token payload to the request object
     req.user = decoded;
 
-    console.log('Decoded token payload:');
-    console.log(req.user);
-
     next();
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {

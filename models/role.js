@@ -11,6 +11,12 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(User, { foreignKey: 'roleId' });
     }
   }
+
+  // Define the role types
+  Role.Manager = 'Manager';
+  Role.Student = 'Student';
+  Role.Teacher = 'Teacher';
+
   Role.init(
     {
       id: {
@@ -22,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       type: {
         type: DataTypes.ENUM,
         allowNull: false,
-        values: ['Manager', 'Student', 'Teacher'],
+        values: [Role.Manager, Role.Student, Role.Teacher],
         unique: true,
       },
     },
