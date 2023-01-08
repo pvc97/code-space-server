@@ -1,5 +1,5 @@
-const ACCESS_TOKEN_DURATION = 300; // 5 minutes
-const REFRESH_TOKEN_DURATION = 604800; // 7 days
+const ACCESS_TOKEN_DURATION = 30; // 5 minutes
+const REFRESH_TOKEN_DURATION = 60; // 7 days
 
 module.exports = {
   ACCESS_TOKEN_DURATION,
