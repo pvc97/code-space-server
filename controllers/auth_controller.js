@@ -59,20 +59,30 @@ const login = async (req, res) => {
     // Authenticate User
     const { username, password } = req.body;
 
-    const user = await User.findOne({ where: { username } });
+    const user = await User.scope(User.withPassword).findOne({
+      where: { username },
+      include: [
+        {
+          model: Role,
+          as: 'role',
+          attributes: ['type'],
+        },
+      ],
+    });
 
     if (!user) {
       return res.status(401).send({ error: LOGIN_ERROR_MESSAGE });
     }
+
+    // Add roleType to user object and remove role object
+    user.dataValues.roleType = user.role.type;
+    delete user.dataValues.role;
 
     const isValidPassword = await bcryptjs.compare(password, user.password);
 
     if (!isValidPassword) {
       return res.status(401).send({ error: LOGIN_ERROR_MESSAGE });
     }
-
-    const role = await Role.findByPk(user.roleId);
-    user.dataValues.role = role.type;
 
     const accessToken = generateAccessToken(user.dataValues);
     const refreshToken = generateRefreshToken(user.dataValues);
@@ -138,10 +148,19 @@ const refreshToken = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ where: { id: decodedRefreshToken.id } });
+    const user = await User.findByPk(decodedRefreshToken.id, {
+      include: [
+        {
+          model: Role,
+          as: 'role',
+          attributes: ['type'],
+        },
+      ],
+    });
 
-    const role = await Role.findByPk(user.roleId);
-    user.dataValues.role = role.type;
+    // Add roleType to user object and remove role object
+    user.dataValues.roleType = user.role.type;
+    delete user.dataValues.role;
 
     const accessToken = generateAccessToken(user.dataValues);
     const newRefreshToken = generateRefreshToken(user.dataValues);
