@@ -12,10 +12,9 @@ const { convertTimeStampToDate } = require('../utils/date_time');
 const {
   LOGIN_ERROR_MESSAGE,
   INTERNAL_SERVER_ERROR_MESSAGE,
+  INVALID_TOKEN_MESSAGE,
+  TOKEN_EXPIRED_MESSAGE,
 } = require('../constants/strings');
-
-// In production, this should be stored in a database
-let refreshTokens = [];
 
 const register = async (req, res) => {
   try {
@@ -49,7 +48,7 @@ const register = async (req, res) => {
       expiresAt,
     });
 
-    res.status(201).json({ data: { accessToken, refreshToken } });
+    res.status(201).send({ data: { accessToken, refreshToken } });
   } catch (error) {
     console.log(error);
     res.status(500).send({ error: INTERNAL_SERVER_ERROR_MESSAGE });
@@ -88,7 +87,7 @@ const login = async (req, res) => {
       expiresAt,
     });
 
-    res.json({ data: { accessToken, refreshToken } });
+    res.status(200).send({ data: { accessToken, refreshToken } });
   } catch (error) {
     console.log(error);
     res.status(500).send({ error: INTERNAL_SERVER_ERROR_MESSAGE });
@@ -112,19 +111,63 @@ const logout = async (req, res) => {
   }
 };
 
-const refreshToken = (req, res) => {
-  const refreshToken = req.body.token;
+const refreshToken = async (req, res) => {
+  try {
+    const token = req.body.refreshToken;
 
-  if (!refreshToken) return res.sendStatus(401);
+    if (!token) {
+      return res.status(401).send({ error: 'Token is required' });
+    }
 
-  if (refreshTokens.includes(refreshToken)) {
-    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-      if (err) return res.sendStatus(403);
-      const accessToken = genereateAccessToken({ name: user.name });
-      res.json({ accessToken });
+    const decodedRefreshToken = decodeRefreshToken(token);
+
+    const refreshToken = await RefreshToken.findOne({
+      where: {
+        userId: decodedRefreshToken.id,
+        token: token,
+      },
     });
-  } else {
-    res.sendStatus(403);
+    // If refresh token is not found in the database
+    if (!refreshToken) {
+      return res.status(401).send({ error: INVALID_TOKEN_MESSAGE });
+    } else {
+      // Delete the refresh token from the database
+      await RefreshToken.destroy({
+        where: {
+          token: token,
+        },
+      });
+    }
+
+    const user = await User.findOne({ where: { id: decodedRefreshToken.id } });
+
+    const role = await Role.findByPk(user.roleId);
+    user.dataValues.role = role.type;
+
+    const accessToken = generateAccessToken(user.dataValues);
+    const newRefreshToken = generateRefreshToken(user.dataValues);
+
+    const decodedNewRefreshToken = decodeRefreshToken(newRefreshToken);
+    const expiresAt = convertTimeStampToDate(decodedNewRefreshToken.exp);
+
+    await RefreshToken.create({
+      token: newRefreshToken,
+      userId: user.id,
+      expiresAt,
+    });
+
+    res
+      .status(200)
+      .send({ data: { accessToken, refreshToken: newRefreshToken } });
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).send({ error: TOKEN_EXPIRED_MESSAGE });
+    } else if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).send({ error: INVALID_TOKEN_MESSAGE });
+    } else {
+      console.log(error);
+      res.status(500).send({ error: INTERNAL_SERVER_ERROR_MESSAGE });
+    }
   }
 };
 
