@@ -4,16 +4,16 @@ const { User, Role, RefreshToken } = require('../models');
 const {
   generateAccessToken,
   generateRefreshToken,
-  decodeAccessToken,
   decodeRefreshToken,
 } = require('../utils/auth');
 
 const { convertTimeStampToDate } = require('../utils/date_time');
 const {
   LOGIN_ERROR_MESSAGE,
-  INTERNAL_SERVER_ERROR_MESSAGE,
   INVALID_TOKEN_MESSAGE,
   TOKEN_EXPIRED_MESSAGE,
+  TOKEN_REQUIRED_MESSAGE,
+  INTERNAL_SERVER_ERROR_MESSAGE,
 } = require('../constants/strings');
 
 const register = async (req, res) => {
@@ -116,7 +116,7 @@ const refreshToken = async (req, res) => {
     const token = req.body.refreshToken;
 
     if (!token) {
-      return res.status(401).send({ error: 'Token is required' });
+      return res.status(401).send({ error: TOKEN_REQUIRED_MESSAGE });
     }
 
     const decodedRefreshToken = decodeRefreshToken(token);
