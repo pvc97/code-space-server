@@ -59,7 +59,9 @@ const login = async (req, res) => {
     // Authenticate User
     const { username, password } = req.body;
 
-    const user = await User.findOne({ where: { username } });
+    const user = await User.findOne({
+      where: { username },
+    });
 
     if (!user) {
       return res.status(401).send({ error: LOGIN_ERROR_MESSAGE });
@@ -138,7 +140,9 @@ const refreshToken = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ where: { id: decodedRefreshToken.id } });
+    const user = await User.scope(User.withoutPassword).findByPk(
+      decodedRefreshToken.id
+    );
 
     const role = await Role.findByPk(user.roleId);
     user.dataValues.role = role.type;
