@@ -6,7 +6,6 @@ const {
   generateRefreshToken,
   decodeRefreshToken,
 } = require('../utils/auth');
-
 const { convertTimeStampToDate } = require('../utils/date_time');
 const {
   LOGIN_ERROR_MESSAGE,
