@@ -107,9 +107,39 @@ const logout = async (req, res) => {
   try {
     const { refreshToken } = req.body;
 
+    if (!token) {
+      return res.status(401).send({ error: TOKEN_REQUIRED_MESSAGE });
+    }
+
     await RefreshToken.destroy({
       where: {
         token: refreshToken,
+      },
+    });
+
+    res.sendStatus(204);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ error: INTERNAL_SERVER_ERROR_MESSAGE });
+  }
+};
+
+// If user logs out from all devices, all refresh tokens will be deleted
+// If some user still have some valid access tokens, they will be able to use them
+// until they are expired.
+const logoutAll = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(401).send({ error: TOKEN_REQUIRED_MESSAGE });
+    }
+
+    const decodedRefreshToken = decodeRefreshToken(refreshToken);
+
+    await RefreshToken.destroy({
+      where: {
+        userId: decodedRefreshToken.id,
       },
     });
 
@@ -180,7 +210,11 @@ const refreshToken = async (req, res) => {
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return res.status(401).send({ error: TOKEN_EXPIRED_MESSAGE });
-    } else if (error instanceof jwt.JsonWebTokenError) {
+    } else if (
+      error instanceof jwt.JsonWebTokenError ||
+      error instanceof SyntaxError
+    ) {
+      console.log(error);
       return res.status(401).send({ error: INVALID_TOKEN_MESSAGE });
     } else {
       console.log(error);
@@ -193,5 +227,6 @@ module.exports = {
   register,
   login,
   logout,
+  logoutAll,
   refreshToken,
 };

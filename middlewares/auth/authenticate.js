@@ -25,7 +25,10 @@ const authenticate = (req, res, next) => {
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return res.status(401).send({ error: TOKEN_EXPIRED_MESSAGE });
-    } else if (error instanceof jwt.JsonWebTokenError) {
+    } else if (
+      error instanceof jwt.JsonWebTokenError ||
+      error instanceof SyntaxError
+    ) {
       return res.status(401).send({ error: INVALID_TOKEN_MESSAGE });
     } else {
       console.log(error);
