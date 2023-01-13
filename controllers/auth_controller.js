@@ -8,6 +8,8 @@ const {
 } = require('../utils/auth');
 const { convertTimeStampToDate } = require('../utils/date_time');
 const {
+  REQUIRED_USERNAME,
+  REQUIRED_PASSWORD,
   LOGIN_ERROR_MESSAGE,
   INVALID_TOKEN_MESSAGE,
   TOKEN_EXPIRED_MESSAGE,
@@ -58,6 +60,14 @@ const login = async (req, res) => {
   try {
     // Authenticate User
     const { username, password } = req.body;
+
+    if (!username) {
+      return res.status(400).send({ error: REQUIRED_USERNAME });
+    }
+
+    if (!password) {
+      return res.status(400).send({ error: REQUIRED_PASSWORD });
+    }
 
     const user = await User.scope(User.withPassword).findOne({
       where: { username },
