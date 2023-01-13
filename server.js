@@ -2,9 +2,13 @@ require('dotenv').config();
 const express = require('express');
 
 const { rootRouter } = require('./routers');
+const {
+  handleInvalidJson,
+} = require('./middlewares/error/handle_invalid_json');
 
 const app = express();
 app.use(express.json());
+app.use(handleInvalidJson);
 
 app.use('/api/v1', rootRouter);
 

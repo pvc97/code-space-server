@@ -5,8 +5,10 @@ const TOKEN_EXPIRED_MESSAGE = 'Token Expired';
 const TOKEN_REQUIRED_MESSAGE = 'Token is Required';
 const REQUIRED_PASSWORD = 'Required Password';
 const REQUIRED_USERNAME = 'Required Username';
+const INVALID_JSON = 'Invalid JSON';
 
 module.exports = {
+  INVALID_JSON,
   REQUIRED_PASSWORD,
   REQUIRED_USERNAME,
   LOGIN_ERROR_MESSAGE,
