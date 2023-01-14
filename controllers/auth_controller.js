@@ -18,6 +18,7 @@ const {
 } = require('../constants/strings');
 
 const register = async (req, res) => {
+  console.log('register');
   try {
     const { username, name, email, password, roleId } = req.body;
 
