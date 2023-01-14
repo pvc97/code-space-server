@@ -13,9 +13,9 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   // Define the role types
-  Role.Manager = 'Manager';
-  Role.Student = 'Student';
-  Role.Teacher = 'Teacher';
+  Role.Manager = 'manager';
+  Role.Student = 'student';
+  Role.Teacher = 'teacher';
 
   Role.init(
     {

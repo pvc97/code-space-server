@@ -2,6 +2,8 @@
 
 const { v4: uuidv4 } = require('uuid');
 
+const { Role } = require('../models');
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -10,15 +12,15 @@ module.exports = {
       [
         {
           id: uuidv4(),
-          type: 'Manager',
+          type: Role.Manager,
         },
         {
           id: uuidv4(),
-          type: 'Student',
+          type: Role.Student,
         },
         {
           id: uuidv4(),
-          type: 'Teacher',
+          type: Role.Teacher,
         },
       ],
       {}

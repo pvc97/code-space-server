@@ -12,7 +12,7 @@ module.exports = {
         type: Sequelize.ENUM,
         allowNull: false,
         unique: true,
-        values: ['Manager', 'Student', 'Teacher'],
+        values: ['manager', 'student', 'teacher'],
       },
     });
   },
