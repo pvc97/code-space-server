@@ -119,7 +119,7 @@ const logout = async (req, res) => {
     const { refreshToken } = req.body;
 
     if (!token) {
-      return res.status(401).send({ error: TOKEN_REQUIRED_MESSAGE });
+      return res.status(403).send({ error: TOKEN_REQUIRED_MESSAGE });
     }
 
     await RefreshToken.destroy({
@@ -162,11 +162,13 @@ const logoutAll = async (req, res) => {
 };
 
 const refreshToken = async (req, res) => {
+  // DO NOT RETURN STATUS CODE 401 UNAUTHORIZED WHEN REFRESH TOKEN
+  // THIS MAY CAUSE INFINITE LOOP AT CLIENT SIDE
   try {
     const token = req.body.refreshToken;
 
     if (!token) {
-      return res.status(401).send({ error: TOKEN_REQUIRED_MESSAGE });
+      return res.status(403).send({ error: TOKEN_REQUIRED_MESSAGE });
     }
 
     const decodedRefreshToken = decodeRefreshToken(token);
@@ -179,7 +181,7 @@ const refreshToken = async (req, res) => {
     });
     // If refresh token is not found in the database
     if (!refreshToken) {
-      return res.status(401).send({ error: INVALID_TOKEN_MESSAGE });
+      return res.status(403).send({ error: INVALID_TOKEN_MESSAGE });
     } else {
       // Delete the refresh token from the database
       await RefreshToken.destroy({
@@ -220,13 +222,13 @@ const refreshToken = async (req, res) => {
       .send({ data: { accessToken, refreshToken: newRefreshToken } });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      return res.status(401).send({ error: TOKEN_EXPIRED_MESSAGE });
+      return res.status(403).send({ error: TOKEN_EXPIRED_MESSAGE });
     } else if (
       error instanceof jwt.JsonWebTokenError ||
       error instanceof SyntaxError
     ) {
       console.log(error);
-      return res.status(401).send({ error: INVALID_TOKEN_MESSAGE });
+      return res.status(403).send({ error: INVALID_TOKEN_MESSAGE });
     } else {
       console.log(error);
       res.status(500).send({ error: INTERNAL_SERVER_ERROR_MESSAGE });
