@@ -9,7 +9,7 @@ const userRouter = express.Router();
 userRouter.get(
   '/user-info',
   authenticate,
-  authorize([Role.Student]),
+  // authorize([Role.Student]),
   getUserInfo
 );
 
