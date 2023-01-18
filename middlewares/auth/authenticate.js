@@ -10,6 +10,10 @@ const { decodeAccessToken } = require('../../utils/auth');
 
 const authenticate = (req, res, next) => {
   try {
+    if (!req.headers.authorization) {
+      return res.status(401).send({ error: TOKEN_REQUIRED_MESSAGE });
+    }
+
     const accessToken = req.headers.authorization.replace('Bearer ', '');
     if (!accessToken) {
       return res.status(401).send({ error: TOKEN_REQUIRED_MESSAGE });
