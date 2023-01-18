@@ -164,6 +164,8 @@ const logoutAll = async (req, res) => {
 const refreshToken = async (req, res) => {
   // DO NOT RETURN STATUS CODE 401 UNAUTHORIZED WHEN REFRESH TOKEN
   // THIS MAY CAUSE INFINITE LOOP AT CLIENT SIDE
+
+  // Code-Space-Client has implemented a mechanism to prevent infinite loop, so we can return 401 status code without any problem
   try {
     const token = req.body.refreshToken;
 
@@ -222,13 +224,13 @@ const refreshToken = async (req, res) => {
       .send({ data: { accessToken, refreshToken: newRefreshToken } });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      return res.status(403).send({ error: TOKEN_EXPIRED_MESSAGE });
+      return res.status(401).send({ error: TOKEN_EXPIRED_MESSAGE });
     } else if (
       error instanceof jwt.JsonWebTokenError ||
       error instanceof SyntaxError
     ) {
       console.log(error);
-      return res.status(403).send({ error: INVALID_TOKEN_MESSAGE });
+      return res.status(401).send({ error: INVALID_TOKEN_MESSAGE });
     } else {
       console.log(error);
       res.status(500).send({ error: INTERNAL_SERVER_ERROR_MESSAGE });
