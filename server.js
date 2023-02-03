@@ -1,5 +1,7 @@
 require('dotenv').config();
 const express = require('express');
+const i18next = require('i18next');
+const fs = require('fs');
 
 const { rootRouter } = require('./routers');
 const {
@@ -7,6 +9,22 @@ const {
 } = require('./middlewares/error/handle_invalid_json');
 
 const { cors } = require('./middlewares/cors/cors');
+
+i18next.init({
+  lng: 'vi',
+  resources: {
+    en: {
+      translation: JSON.parse(
+        fs.readFileSync(`${__dirname}/locales/en.json`, 'utf8')
+      ),
+    },
+    vi: {
+      translation: JSON.parse(
+        fs.readFileSync(`${__dirname}/locales/vi.json`, 'utf8')
+      ),
+    },
+  },
+});
 
 const app = express();
 app.use(express.json());

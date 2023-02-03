@@ -1,4 +1,4 @@
-const { INTERNAL_SERVER_ERROR_MESSAGE } = require('../../constants/strings');
+const translate = require('../../utils/translate');
 
 const authorize = (roles) => (req, res, next) => {
   try {
@@ -11,7 +11,7 @@ const authorize = (roles) => (req, res, next) => {
     }
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error: INTERNAL_SERVER_ERROR_MESSAGE });
+    res.status(500).send({ error: translate('internal_server_error', req) });
   }
 };
 

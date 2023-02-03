@@ -1,9 +1,10 @@
-const { INVALID_JSON } = require('../../constants/strings');
+const translate = require('../../utils/translate');
 
 const handleInvalidJson = function (err, req, res, next) {
-  console.log(err);
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-    return res.status(400).send({ error: INVALID_JSON });
+    console.log(req.query);
+
+    return res.status(400).send({ error: translate('invalid_json', req) });
   }
   next();
 };

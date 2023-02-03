@@ -1,9 +1,4 @@
-const {
-  REQUIRED_NAME,
-  REQUIRED_USERNAME,
-  REQUIRED_EMAIL,
-  REQUIRED_PASSWORD,
-} = require('../../constants/strings');
+const translate = require('../../utils/translate');
 
 const { Role } = require('../../models');
 
@@ -13,19 +8,19 @@ const registerRequire = async (req, res, next) => {
   const { username, name, email, password, roleId } = req.body;
 
   if (!username) {
-    return res.status(400).send({ error: REQUIRED_USERNAME });
+    return res.status(400).send({ error: translate('required_username', req) });
   }
 
   if (!name) {
-    return res.status(400).send({ error: REQUIRED_NAME });
+    return res.status(400).send({ error: translate('required_name', req) });
   }
 
   if (!email) {
-    return res.status(400).send({ error: REQUIRED_EMAIL });
+    return res.status(400).send({ error: translate('required_email', req) });
   }
 
   if (!password) {
-    return res.status(400).send({ error: REQUIRED_PASSWORD });
+    return res.status(400).send({ error: translate('required_password', req) });
   }
 
   if (!roleId) {
