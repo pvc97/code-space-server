@@ -1,0 +1,12 @@
+{
+  "login_invalid_username_or_password": "Sai tên đăng nhập hoặc mật khẩu",
+  "internal_server_error": "Lỗi máy chủ",
+  "invalid_token": "Token không hợp lệ",
+  "token_expired": "Token đã hết hạn",
+  "token_required": "Thiếu Token",
+  "required_password": "Mật khẩu không được để trống",
+  "required_username": "Tên đăng nhập không được để trống",
+  "required_name": "Tên không được để trống",
+  "required_email": "Email không được để trống",
+  "invalid_json": "JSON không hợp lệ"
+}

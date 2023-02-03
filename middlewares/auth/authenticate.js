@@ -1,22 +1,17 @@
 const jwt = require('jsonwebtoken');
-const {
-  INVALID_TOKEN_MESSAGE,
-  TOKEN_EXPIRED_MESSAGE,
-  TOKEN_REQUIRED_MESSAGE,
-  INTERNAL_SERVER_ERROR_MESSAGE,
-} = require('../../constants/strings');
+const translate = require('../../utils/translate');
 
 const { decodeAccessToken } = require('../../utils/auth');
 
 const authenticate = (req, res, next) => {
   try {
     if (!req.headers.authorization) {
-      return res.status(401).send({ error: TOKEN_REQUIRED_MESSAGE });
+      return res.status(401).send({ error: translate('token_required', req) });
     }
 
     const accessToken = req.headers.authorization.replace('Bearer ', '');
     if (!accessToken) {
-      return res.status(401).send({ error: TOKEN_REQUIRED_MESSAGE });
+      return res.status(401).send({ error: translate('token_required', req) });
     }
 
     // Verify the token
@@ -28,15 +23,15 @@ const authenticate = (req, res, next) => {
     next();
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      return res.status(401).send({ error: TOKEN_EXPIRED_MESSAGE });
+      return res.status(401).send({ error: translate('token_expired', req) });
     } else if (
       error instanceof jwt.JsonWebTokenError ||
       error instanceof SyntaxError
     ) {
-      return res.status(401).send({ error: INVALID_TOKEN_MESSAGE });
+      return res.status(401).send({ error: translate('invalid_token', req) });
     } else {
       console.log(error);
-      res.status(500).send({ error: INTERNAL_SERVER_ERROR_MESSAGE });
+      res.status(500).send({ error: translate('internal_server_error', req) });
     }
   }
 };

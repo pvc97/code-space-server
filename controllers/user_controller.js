@@ -1,6 +1,5 @@
 const { User, Role } = require('../models');
-
-const { INTERNAL_SERVER_ERROR_MESSAGE } = require('../constants/strings');
+const translate = require('../utils/translate');
 
 const getUserInfo = async (req, res) => {
   try {
@@ -22,7 +21,7 @@ const getUserInfo = async (req, res) => {
     res.status(200).send({ data: user });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error: INTERNAL_SERVER_ERROR_MESSAGE });
+    res.status(500).send({ error: translate('internal_server_error', req) });
   }
 };
 
