@@ -13,6 +13,10 @@ const submitCode = async (req, res) => {
 
     const tokensParam = tokens.join(',');
 
+    // Because submission batch doesn't have wait parameter, we need to poll the API
+    // to check if the submission is complete
+    await sleep(1000); // Wait for 1 second before polling
+
     let result = await getSubmission(tokensParam);
     while (!submitComplete(result)) {
       await sleep(1000);
