@@ -23,3 +23,4 @@ npx sequelize db:seed --seed create_course.js
 npx sequelize db:seed --seed create_student_course.js
 npx sequelize db:seed --seed create_problem.js
 npx sequelize db:seed --seed create_test_case.js
+npx sequelize db:seed --seed create_submission.js
