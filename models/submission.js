@@ -7,8 +7,10 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate(models) {
-      // define association here
+    static associate(User, Problem, SubmissionResult) {
+      Submission.belongsTo(User, { foreignKey: 'createdBy', as: 'user' });
+      Submission.belongsTo(Problem, { foreignKey: 'problemId', as: 'problem' });
+      Submission.hasMany(SubmissionResult, { as: 'submissionResults' });
     }
   }
   Submission.init(
@@ -22,22 +24,22 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: false,
       },
-      createdBy: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-          model: 'users',
-          key: 'id',
-        },
-      },
-      problemId: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-          model: 'problems',
-          key: 'id',
-        },
-      },
+      // createdBy: {
+      //   type: DataTypes.UUID,
+      //   allowNull: false,
+      //   references: {
+      //     model: 'users',
+      //     key: 'id',
+      //   },
+      // },
+      // problemId: {
+      //   type: DataTypes.UUID,
+      //   allowNull: false,
+      //   references: {
+      //     model: 'problems',
+      //     key: 'id',
+      //   },
+      // },
       totalPoint: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
