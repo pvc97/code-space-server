@@ -25,7 +25,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       username: {
         type: DataTypes.STRING,
-        defaultValue: DataTypes.UUIDV4,
         allowNull: false,
         unique: true,
       },
@@ -43,12 +42,17 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       roleId: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
           model: 'roles',
           key: 'id',
         },
+      },
+      active: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+        allowNull: false,
       },
     },
     {

@@ -1,28 +1,33 @@
 'use strict';
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class RefreshToken extends Model {
+  class Course extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ User }) {
-      this.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
+    static associate(models) {
+      // define association here
     }
   }
-  RefreshToken.init(
+  Course.init(
     {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      token: {
-        type: DataTypes.TEXT,
+      name: {
+        type: DataTypes.STRING,
         allowNull: false,
       },
-      userId: {
+      code: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      createdBy: {
         type: DataTypes.UUID,
         allowNull: false,
         references: {
@@ -30,15 +35,20 @@ module.exports = (sequelize, DataTypes) => {
           key: 'id',
         },
       },
-      expiresAt: {
-        type: DataTypes.DATE,
+      accessCode: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      active: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
         allowNull: false,
       },
     },
     {
       sequelize,
-      modelName: 'RefreshToken',
+      modelName: 'Course',
     }
   );
-  return RefreshToken;
+  return Course;
 };

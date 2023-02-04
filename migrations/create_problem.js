@@ -2,35 +2,30 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Users', {
+    await queryInterface.createTable('Problems', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      username: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
-      },
       name: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      email: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
-      },
-      password: {
+      pdfPath: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      roleId: {
+      pointPerTestCase: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 10,
+      },
+      courseId: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'roles',
+          model: 'courses',
           key: 'id',
         },
       },
@@ -39,17 +34,25 @@ module.exports = {
         defaultValue: true,
         allowNull: false,
       },
-      createdAt: {
-        type: Sequelize.DATE,
+      languageId: {
+        type: Sequelize.INTEGER,
         allowNull: false,
+        references: {
+          model: 'languages',
+          key: 'id',
+        },
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
       },
       updatedAt: {
-        type: Sequelize.DATE,
         allowNull: false,
+        type: Sequelize.DATE,
       },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Users');
+    await queryInterface.dropTable('Problems');
   },
 };

@@ -2,54 +2,48 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Users', {
+    await queryInterface.createTable('Submissions', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      username: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
-      },
-      name: {
-        type: Sequelize.STRING,
+      sourceCode: {
+        type: Sequelize.TEXT,
         allowNull: false,
       },
-      email: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
-      },
-      password: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      roleId: {
+      createdBy: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'roles',
+          model: 'users',
           key: 'id',
         },
       },
-      active: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: true,
+      problemId: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'problems',
+          key: 'id',
+        },
+      },
+      totalPoint: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
         allowNull: false,
       },
       createdAt: {
-        type: Sequelize.DATE,
         allowNull: false,
+        type: Sequelize.DATE,
       },
       updatedAt: {
-        type: Sequelize.DATE,
         allowNull: false,
+        type: Sequelize.DATE,
       },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Users');
+    await queryInterface.dropTable('Submissions');
   },
 };
