@@ -10,15 +10,15 @@ module.exports = {
     const hashedPassword = await bcryptjs.hash('123456', 10);
 
     const managerRole = await queryInterface.sequelize.query(
-      `SELECT * FROM roles WHERE type = 'Manager' LIMIT 1`
+      `SELECT * FROM roles WHERE type = 'manager' LIMIT 1`
     );
 
     const studentRole = await queryInterface.sequelize.query(
-      `SELECT * FROM roles WHERE type = 'Student' LIMIT 1`
+      `SELECT * FROM roles WHERE type = 'student' LIMIT 1`
     );
 
     const teacherRole = await queryInterface.sequelize.query(
-      `SELECT * FROM roles WHERE type = 'Teacher' LIMIT 1`
+      `SELECT * FROM roles WHERE type = 'teacher' LIMIT 1`
     );
 
     await queryInterface.bulkInsert(
