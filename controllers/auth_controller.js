@@ -12,9 +12,12 @@ const { convertTimeStampToDate } = require('../utils/date_time');
 const register = async (req, res) => {
   console.log('register');
   try {
-    const { username, name, email, password, roleId } = req.body;
+    const { username, name, email, password, roleType } = req.body;
 
     const hashedPassword = await bcryptjs.hash(password, 10);
+
+    const roleId = (await Role.findOne({ where: { type: roleType } }))
+      .dataValues.id;
 
     const user = await User.create({
       username,
@@ -24,8 +27,7 @@ const register = async (req, res) => {
       roleId,
     });
 
-    const role = await Role.findByPk(user.roleId);
-    user.dataValues.role = role.type;
+    user.dataValues.role = roleType;
 
     const accessToken = generateAccessToken(user.dataValues);
     const refreshToken = generateRefreshToken(user.dataValues);
@@ -44,7 +46,11 @@ const register = async (req, res) => {
 
     res.status(201).send({ data: { accessToken, refreshToken } });
   } catch (error) {
-    console.log(error);
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(409).send({
+        error: translate('register_username_or_email_already_exists', req),
+      });
+    }
     res.status(500).send({ error: translate('internal_server_error', req) });
   }
 };
@@ -68,13 +74,7 @@ const login = async (req, res) => {
 
     const user = await User.scope(User.withPassword).findOne({
       where: { username },
-      include: [
-        {
-          model: Role,
-          as: 'role',
-          attributes: ['type'],
-        },
-      ],
+      include: ['role'],
     });
 
     if (!user) {

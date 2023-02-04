@@ -8,5 +8,6 @@
   "required_username": "Required username",
   "required_name": "Required name",
   "required_email": "Required email",
-  "invalid_json": "Invalid JSON"
+  "invalid_json": "Invalid JSON",
+  "register_username_or_email_already_exists": "Username or email already exists"
 }

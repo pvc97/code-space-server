@@ -3,12 +3,11 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate({ Role, RefreshToken }) {
-      this.belongsTo(Role, {
+      User.belongsTo(Role, {
         foreignKey: 'roleId',
         as: 'role',
-        onDelete: 'CASCADE',
       });
-      this.hasMany(RefreshToken, { foreignKey: 'userId' });
+      User.hasMany(RefreshToken, { as: 'refreshTokens' });
     }
   }
 
@@ -41,14 +40,17 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      roleId: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-          model: 'roles',
-          key: 'id',
-        },
-      },
+      // User.belongsTo automatically creates a foreign key
+      // so we don't need to define it here
+
+      // roleId: {
+      //   type: DataTypes.UUID,
+      //   allowNull: false,
+      //   references: {
+      //     model: 'roles',
+      //     key: 'id',
+      //   },
+      // },
       active: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,

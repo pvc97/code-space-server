@@ -8,5 +8,6 @@
   "required_username": "Tên đăng nhập không được để trống",
   "required_name": "Tên không được để trống",
   "required_email": "Email không được để trống",
-  "invalid_json": "JSON không hợp lệ"
+  "invalid_json": "JSON không hợp lệ",
+  "register_username_or_email_already_exists": "Tên đăng nhập hoặc email đã tồn tại"
 }

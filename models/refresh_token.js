@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate({ User }) {
-      this.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
+      this.belongsTo(User, { foreignKey: 'userId', as: 'user' });
     }
   }
   RefreshToken.init(
@@ -22,14 +22,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: false,
       },
-      userId: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-          model: 'users',
-          key: 'id',
-        },
-      },
+      // userId: {
+      //   type: DataTypes.UUID,
+      //   allowNull: false,
+      //   references: {
+      //     model: 'users',
+      //     key: 'id',
+      //   },
+      // },
       expiresAt: {
         type: DataTypes.DATE,
         allowNull: false,
