@@ -13,6 +13,7 @@ npx sequelize db:migrate --name create_student_course.js
 npx sequelize db:migrate --name create_problem.js
 npx sequelize db:migrate --name create_test_case.js
 npx sequelize db:migrate --name create_submission.js
+npx sequelize db:migrate --name create_submission_result.js
 
 # Seed order:
 
@@ -24,3 +25,4 @@ npx sequelize db:seed --seed create_student_course.js
 npx sequelize db:seed --seed create_problem.js
 npx sequelize db:seed --seed create_test_case.js
 npx sequelize db:seed --seed create_submission.js
+npx sequelize db:seed --seed create_submission_result.js
