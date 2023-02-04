@@ -14,8 +14,8 @@ module.exports = (sequelize, DataTypes) => {
         as: 'role',
       });
       User.hasMany(RefreshToken, { as: 'refreshTokens' });
-      // User.hasMany(Course, { as: 'courses' }); // One teacher can have many courses
-      // User.hasMany(StudentCourse, { as: 'studentCourses' }); // One student can have many courses
+      User.hasMany(Course, { as: 'courses' }); // One teacher can have many courses
+      User.hasMany(StudentCourse, { as: 'studentCourses' }); // One student can have many courses
       User.hasMany(Submission, { as: 'submissions' });
     }
   }

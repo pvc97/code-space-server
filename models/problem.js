@@ -7,11 +7,12 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate(Submission, TestCase) {
+    static associate({ Submission, TestCase, Language }) {
       Problem.hasMany(Submission, {
         as: 'submissions',
       });
       Problem.hasMany(TestCase, { as: 'testCases' });
+      Problem.belongsTo(Language, { foreignKey: 'languageId', as: 'language' });
     }
   }
   Problem.init(
@@ -47,14 +48,14 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: true,
         allowNull: false,
       },
-      languageId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'languages',
-          key: 'id',
-        },
-      },
+      // languageId: {
+      //   type: DataTypes.INTEGER,
+      //   allowNull: false,
+      //   references: {
+      //     model: 'languages',
+      //     key: 'id',
+      //   },
+      // },
     },
     {
       sequelize,
