@@ -8,9 +8,11 @@ npx sequelize db:migrate --name create_role.js
 npx sequelize db:migrate --name create_user.js
 npx sequelize db:migrate --name create_refresh_token.js
 npx sequelize db:migrate --name create_language.js
+npx sequelize db:migrate --name create_course.js
 
 # Seed order:
 
-npx sequelize db:seed --seed create_roles.js
-npx sequelize db:seed --seed create_users.js
+npx sequelize db:seed --seed create_role.js
+npx sequelize db:seed --seed create_user.js
 npx sequelize db:seed --seed create_language.js
+npx sequelize db:seed --seed create_course.js
