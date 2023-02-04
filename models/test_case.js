@@ -7,8 +7,9 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate(models) {
-      // define association here
+    static associate({ Problem, SubmissionResult }) {
+      TestCase.belongsTo(Problem, { foreignKey: 'problemId', as: 'problem' });
+      TestCase.hasMany(SubmissionResult, { as: 'submissionResults' });
     }
   }
   TestCase.init(
@@ -28,14 +29,14 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: '',
       },
-      problemId: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-          model: 'problems',
-          key: 'id',
-        },
-      },
+      // problemId: {
+      //   type: DataTypes.UUID,
+      //   allowNull: false,
+      //   references: {
+      //     model: 'problems',
+      //     key: 'id',
+      //   },
+      // },
       active: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,

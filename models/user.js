@@ -2,12 +2,21 @@
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
-    static associate({ Role, RefreshToken }) {
+    static associate({
+      Role,
+      RefreshToken,
+      Course,
+      StudentCourse,
+      Submission,
+    }) {
       User.belongsTo(Role, {
         foreignKey: 'roleId',
         as: 'role',
       });
       User.hasMany(RefreshToken, { as: 'refreshTokens' });
+      User.hasMany(Course, { as: 'courses' }); // One teacher can have many courses
+      User.hasMany(StudentCourse, { as: 'studentCourses' }); // One student can have many courses
+      User.hasMany(Submission, { as: 'submissions' });
     }
   }
 

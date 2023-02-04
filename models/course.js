@@ -7,8 +7,9 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate(models) {
-      // define association here
+    static associate({ User, StudentCourse }) {
+      Course.belongsTo(User, { foreignKey: 'createdBy', as: 'teacher' }); // A course only has one teacher
+      Course.hasMany(StudentCourse, { as: 'students' }); // A course has many students
     }
   }
   Course.init(
@@ -27,14 +28,14 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         unique: true,
       },
-      createdBy: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-          model: 'users',
-          key: 'id',
-        },
-      },
+      // createdBy: {
+      //   type: DataTypes.UUID,
+      //   allowNull: false,
+      //   references: {
+      //     model: 'users',
+      //     key: 'id',
+      //   },
+      // },
       accessCode: {
         type: DataTypes.STRING,
         allowNull: false,
