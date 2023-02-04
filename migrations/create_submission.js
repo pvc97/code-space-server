@@ -2,21 +2,23 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('TestCases', {
+    await queryInterface.createTable('Submissions', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      stdin: {
+      sourceCode: {
         type: Sequelize.TEXT,
         allowNull: false,
-        defaultValue: '',
       },
-      expectedOutput: {
-        type: Sequelize.TEXT,
+      createdBy: {
+        type: Sequelize.UUID,
         allowNull: false,
-        defaultValue: '',
+        references: {
+          model: 'users',
+          key: 'id',
+        },
       },
       problemId: {
         type: Sequelize.UUID,
@@ -26,9 +28,9 @@ module.exports = {
           key: 'id',
         },
       },
-      active: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: true,
+      totalPoint: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
         allowNull: false,
       },
       createdAt: {
@@ -42,6 +44,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('TestCases');
+    await queryInterface.dropTable('Submissions');
   },
 };
