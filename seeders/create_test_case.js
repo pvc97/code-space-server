@@ -22,6 +22,24 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          id: uuidv4(),
+          stdin: '1 2',
+          expectedOutput: '3',
+          problemId: problemId,
+          active: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: uuidv4(),
+          stdin: '2 2',
+          expectedOutput: '4',
+          problemId: problemId,
+          active: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ],
       {}
     );
