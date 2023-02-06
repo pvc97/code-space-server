@@ -21,6 +21,8 @@ const translate = require('../utils/translate');
  */
 const createSubmission = async (req, res) => {
   try {
+    // TODO: Handle required fields
+
     // Authenticate middleware has attached the user to the request object
     const userId = req.user.id;
     const sourceCode = req.body.sourceCode;
@@ -34,12 +36,13 @@ const createSubmission = async (req, res) => {
       },
     });
 
-    const testCases = problem.testCases;
+    const base64SourceCode = Buffer.from(sourceCode).toString('base64');
 
+    const testCases = problem.testCases;
     const inputSubmissions = [];
     for (testCase of testCases) {
       const submission = {
-        source_code: sourceCode,
+        source_code: base64SourceCode,
         language_id: problem.languageId,
         stdin: testCase.stdin,
         expected_output: testCase.expectedOutput,
@@ -70,6 +73,8 @@ const createSubmission = async (req, res) => {
         '';
       // Replace all \n with ''
       output = output.replace(/\n/g, '');
+      // Decode base64
+      output = Buffer.from(output, 'base64').toString('ascii');
 
       const submissionResult = {
         testCaseId: testCase.id,

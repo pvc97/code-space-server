@@ -5,10 +5,12 @@ const apiProvider = require('./api_provider');
 const POLL_INTERVAL = 1000; // 1 second
 
 const createJudge0Submissions = async (submissions) => {
+  // Need use base64 encoded source code to prevent error
+  // "error": "some attributes for this submission cannot be converted to UTF-8, use base64_encoded=true query parameter"
   const response = await apiProvider.post('/submissions/batch', {
     submissions,
     params: {
-      // base64_encoded: true,
+      base64_encoded: true,
     },
   });
 
@@ -22,6 +24,8 @@ const createJudge0Submissions = async (submissions) => {
  * but status may be still in queue or in process
  */
 const fetchJudge0Submission = async (joinedTokens) => {
+  // Need use base64 encoded source code to prevent error
+  // "error": "some attributes for this submission cannot be converted to UTF-8, use base64_encoded=true query parameter"
   const response = await apiProvider.get('/submissions/batch', {
     params: {
       tokens: joinedTokens,
