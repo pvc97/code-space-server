@@ -48,10 +48,10 @@ const register = async (req, res) => {
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
       return res.status(409).send({
-        error: translate('register_username_or_email_already_exists', req),
+        error: translate('register_username_or_email_already_exists', req.hl),
       });
     }
-    res.status(500).send({ error: translate('internal_server_error', req) });
+    res.status(500).send({ error: translate('internal_server_error', req.hl) });
   }
 };
 
@@ -63,13 +63,13 @@ const login = async (req, res) => {
     if (!username) {
       return res
         .status(400)
-        .send({ error: translate('required_username', req) });
+        .send({ error: translate('required_username', req.hl) });
     }
 
     if (!password) {
       return res
         .status(400)
-        .send({ error: translate('required_password', req) });
+        .send({ error: translate('required_password', req.hl) });
     }
 
     const user = await User.scope(User.withPassword).findOne({
@@ -78,9 +78,9 @@ const login = async (req, res) => {
     });
 
     if (!user) {
-      return res
-        .status(401)
-        .send({ error: translate('login_invalid_username_or_password', req) });
+      return res.status(401).send({
+        error: translate('login_invalid_username_or_password', req.hl),
+      });
     }
 
     // Add roleType to user object and remove role object
@@ -90,9 +90,9 @@ const login = async (req, res) => {
     const isValidPassword = await bcryptjs.compare(password, user.password);
 
     if (!isValidPassword) {
-      return res
-        .status(401)
-        .send({ error: translate('login_invalid_username_or_password', req) });
+      return res.status(401).send({
+        error: translate('login_invalid_username_or_password', req.hl),
+      });
     }
 
     const accessToken = generateAccessToken(user.dataValues);
@@ -110,7 +110,7 @@ const login = async (req, res) => {
     res.status(200).send({ data: { accessToken, refreshToken } });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error: translate('internal_server_error', req) });
+    res.status(500).send({ error: translate('internal_server_error', req.hl) });
   }
 };
 
@@ -119,7 +119,9 @@ const logout = async (req, res) => {
     const { refreshToken } = req.body;
 
     if (!token) {
-      return res.status(403).send({ error: translate('token_required', req) });
+      return res
+        .status(403)
+        .send({ error: translate('token_required', req.hl) });
     }
 
     await RefreshToken.destroy({
@@ -131,7 +133,7 @@ const logout = async (req, res) => {
     res.sendStatus(204);
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error: translate('internal_server_error', req) });
+    res.status(500).send({ error: translate('internal_server_error', req.hl) });
   }
 };
 
@@ -143,7 +145,9 @@ const logoutAll = async (req, res) => {
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
-      return res.status(401).send({ error: translate('token_required', req) });
+      return res
+        .status(401)
+        .send({ error: translate('token_required', req.hl) });
     }
 
     const decodedRefreshToken = decodeRefreshToken(refreshToken);
@@ -157,7 +161,7 @@ const logoutAll = async (req, res) => {
     res.sendStatus(204);
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error: translate('internal_server_error', req) });
+    res.status(500).send({ error: translate('internal_server_error', req.hl) });
   }
 };
 
@@ -170,7 +174,9 @@ const refreshToken = async (req, res) => {
     const token = req.body.refreshToken;
 
     if (!token) {
-      return res.status(403).send({ error: translate('token_required', req) });
+      return res
+        .status(403)
+        .send({ error: translate('token_required', req.hl) });
     }
 
     const decodedRefreshToken = decodeRefreshToken(token);
@@ -183,7 +189,9 @@ const refreshToken = async (req, res) => {
     });
     // If refresh token is not found in the database
     if (!refreshToken) {
-      return res.status(403).send({ error: translate('invalid_token', req) });
+      return res
+        .status(403)
+        .send({ error: translate('invalid_token', req.hl) });
     } else {
       // Delete the refresh token from the database
       await RefreshToken.destroy({
@@ -224,16 +232,22 @@ const refreshToken = async (req, res) => {
       .send({ data: { accessToken, refreshToken: newRefreshToken } });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      return res.status(401).send({ error: translate('token_expired', req) });
+      return res
+        .status(401)
+        .send({ error: translate('token_expired', req.hl) });
     } else if (
       error instanceof jwt.JsonWebTokenError ||
       error instanceof SyntaxError
     ) {
       console.log(error);
-      return res.status(401).send({ error: translate('invalid_token', req) });
+      return res
+        .status(401)
+        .send({ error: translate('invalid_token', req.hl) });
     } else {
       console.log(error);
-      res.status(500).send({ error: translate('internal_server_error', req) });
+      res
+        .status(500)
+        .send({ error: translate('internal_server_error', req.hl) });
     }
   }
 };

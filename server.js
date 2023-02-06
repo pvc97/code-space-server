@@ -9,6 +9,7 @@ const {
 } = require('./middlewares/error/handle_invalid_json');
 
 const { cors } = require('./middlewares/cors/cors');
+const injectLanguage = require('./middlewares/language/language_middleware');
 
 i18next.init({
   lng: 'vi',
@@ -27,6 +28,9 @@ i18next.init({
 });
 
 const app = express();
+// injectLanguage must use before express.json() because if express.json() has error
+// error will jump to handleInvalidJson middleware (not go in to injectLanguage)
+app.use(injectLanguage);
 app.use(express.json());
 app.use(handleInvalidJson);
 
