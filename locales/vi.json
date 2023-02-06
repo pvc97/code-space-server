@@ -11,5 +11,6 @@
   "invalid_json": "JSON không hợp lệ",
   "register_username_or_email_already_exists": "Tên đăng nhập hoặc email đã tồn tại",
   "required_source_code": "Mã nguồn không được để trống",
-  "required_problem_id": "Mã bài tập không được để trống"
+  "required_problem_id": "Mã bài tập không được để trống",
+  "submission_not_found": "Không tìm thấy bài nộp"
 }

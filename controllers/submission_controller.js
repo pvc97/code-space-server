@@ -62,8 +62,6 @@ const createSubmission = async (req, res) => {
     // Submit code to Judge0
     const judge0Submissions = await getJudge0Submissions(inputSubmissions);
 
-    console.log(judge0Submissions);
-
     let totalPoint = 0;
     const submissionResults = [];
     const results = [];
@@ -73,7 +71,6 @@ const createSubmission = async (req, res) => {
         totalPoint += problem.pointPerTestCase;
       }
 
-      // TODO: Handle error and encode base64
       let output =
         judge0Submissions[i].stdout ||
         judge0Submissions[i].stderr ||
@@ -85,7 +82,7 @@ const createSubmission = async (req, res) => {
       output = Buffer.from(output, 'base64').toString('ascii');
 
       const submissionResult = {
-        testCaseId: testCase.id,
+        testCaseId: testCases[i].id,
         output,
         correct,
       };
@@ -130,4 +127,50 @@ const createSubmission = async (req, res) => {
   }
 };
 
-module.exports = createSubmission;
+const getSubmissionDetail = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const submission = await Submission.findByPk(id);
+
+    if (!submission) {
+      return res
+        .status(404)
+        .send({ error: translate('submission_not_found', req.hl) });
+    }
+
+    const submissionResults = await SubmissionResult.findAll({
+      where: { submissionId: id },
+    });
+
+    const results = [];
+    for (submissionResult of submissionResults) {
+      const testCase = await TestCase.findByPk(submissionResult.testCaseId);
+
+      console.log(testCase);
+
+      if (testCase.show == true) {
+        const resultItem = {
+          stdin: testCase.stdin,
+          output: submissionResult.output,
+          correct: submissionResult.correct,
+          show: testCase.show,
+        };
+        results.push(resultItem);
+      }
+    }
+
+    submission.dataValues.results = results;
+    submission.dataValues.totalTestCase = submissionResults.length;
+
+    res.status(200).send({ data: submission });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
+module.exports = {
+  createSubmission,
+  getSubmissionDetail,
+};
