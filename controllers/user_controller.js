@@ -21,7 +21,7 @@ const getUserInfo = async (req, res) => {
     res.status(200).send({ data: user });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error: translate('internal_server_error', req) });
+    res.status(500).send({ error: translate('internal_server_error', req.hl) });
   }
 };
 

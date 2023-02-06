@@ -36,7 +36,7 @@ const sleep = require('../utils/sleep');
 //     res.status(200).send({ data: result });
 //   } catch (error) {
 //     console.log(error);
-//     res.status(500).send({ error: translate('internal_server_error', req) });
+//     res.status(500).send({ error: translate('internal_server_error', req.hl ) });
 //   }
 // };
 
@@ -126,7 +126,7 @@ const submitCode = async (req, res) => {
     res.status(200).send({ data: submission });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error: translate('internal_server_error', req) });
+    res.status(500).send({ error: translate('internal_server_error', req.hl) });
   }
 };
 

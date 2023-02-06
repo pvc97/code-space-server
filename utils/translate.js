@@ -1,8 +1,6 @@
 const i18next = require('i18next');
 
-function translate(key, req) {
-  const lang = req.query.lang || i18next.language;
-
+function translate(key, lang) {
   const options = {};
   if (lang) {
     options.lng = lang;

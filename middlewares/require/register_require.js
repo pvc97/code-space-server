@@ -8,19 +8,23 @@ const registerRequire = async (req, res, next) => {
   const { username, name, email, password, roleId } = req.body;
 
   if (!username) {
-    return res.status(400).send({ error: translate('required_username', req) });
+    return res
+      .status(400)
+      .send({ error: translate('required_username', req.hl) });
   }
 
   if (!name) {
-    return res.status(400).send({ error: translate('required_name', req) });
+    return res.status(400).send({ error: translate('required_name', req.hl) });
   }
 
   if (!email) {
-    return res.status(400).send({ error: translate('required_email', req) });
+    return res.status(400).send({ error: translate('required_email', req.hl) });
   }
 
   if (!password) {
-    return res.status(400).send({ error: translate('required_password', req) });
+    return res
+      .status(400)
+      .send({ error: translate('required_password', req.hl) });
   }
 
   if (!roleId) {

@@ -11,7 +11,7 @@ const authorize = (roles) => (req, res, next) => {
     }
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error: translate('internal_server_error', req) });
+    res.status(500).send({ error: translate('internal_server_error', req.hl) });
   }
 };
 
