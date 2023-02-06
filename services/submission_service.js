@@ -44,10 +44,9 @@ const getJudge0Submissions = async (submissions) => {
   await sleep(POLL_INTERVAL); // Wait for 1 second before polling
 
   let result = await fetchJudge0Submission(joinedTokens);
-  while (!isComplete(result) && pollCount > 0) {
+  while (!isComplete(result)) {
     await sleep(POLL_INTERVAL);
     result = await fetchJudge0Submission(joinedTokens);
-    pollCount--;
   }
 
   return result;
