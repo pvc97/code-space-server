@@ -40,7 +40,7 @@ const sleep = require('../utils/sleep');
 //   }
 // };
 
-const submitCode = async (req, res) => {
+const createSubmission = async (req, res) => {
   try {
     const sourceCode = req.body.sourceCode;
     const problemId = req.body.problemId;
@@ -142,4 +142,4 @@ function submitComplete(submissions) {
   return isComplete;
 }
 
-module.exports = submitCode;
+module.exports = createSubmission;
