@@ -8,7 +8,10 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate({ Submission, TestCase, Language }) {
+      // If we don't add foreignKey: 'problemId',
+      // When querying Submission, it will return ProblemId instead of problemId
       Problem.hasMany(Submission, {
+        foreignKey: 'problemId',
         as: 'submissions',
       });
       Problem.hasMany(TestCase, { as: 'testCases' });
