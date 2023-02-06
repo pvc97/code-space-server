@@ -5,14 +5,16 @@ const apiProvider = require('./api_provider');
 const POLL_INTERVAL = 1000; // 1 second
 
 const createJudge0Submissions = async (submissions) => {
-  // Need use base64 encoded source code to prevent error
-  // "error": "some attributes for this submission cannot be converted to UTF-8, use base64_encoded=true query parameter"
+  // NOTE: We don't need encode source code to base64 because
+  // judge0 api will encode it for us when set base64_encoded to true
   const response = await apiProvider.post('/submissions/batch', {
     submissions,
     params: {
       base64_encoded: true,
     },
   });
+
+  console.log(response);
 
   const tokens = response.data.map((submission) => submission.token);
   return tokens;

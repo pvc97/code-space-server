@@ -9,5 +9,7 @@
   "required_name": "Required name",
   "required_email": "Required email",
   "invalid_json": "Invalid JSON",
-  "register_username_or_email_already_exists": "Username or email already exists"
+  "register_username_or_email_already_exists": "Username or email already exists",
+  "required_source_code": "Required source code",
+  "required_problem_id": "Required problem id"
 }
