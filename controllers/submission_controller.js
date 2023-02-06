@@ -42,9 +42,10 @@ const sleep = require('../utils/sleep');
 
 const createSubmission = async (req, res) => {
   try {
+    // Authenticate middleware has attached the user to the request object
+    const userId = req.user.id;
     const sourceCode = req.body.sourceCode;
     const problemId = req.body.problemId;
-    const userId = req.body.userId;
 
     const problem = await Problem.findByPk(problemId, {
       include: {

@@ -4,10 +4,6 @@ const { authenticate } = require('../middlewares/auth/authenticate');
 
 const submissionRouter = express.Router();
 
-submissionRouter.post(
-  '/',
-  // authenticate,
-  createSubmission
-);
+submissionRouter.post('/', authenticate, createSubmission);
 
 module.exports = submissionRouter;
