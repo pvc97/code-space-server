@@ -1,6 +1,5 @@
 const {
-  createSubmissions,
-  getSubmission,
+  getJudge0Submissions: getJudge0Submissions,
 } = require('../services/submission_service');
 
 const {
@@ -11,35 +10,15 @@ const {
 } = require('../models');
 
 const translate = require('../utils/translate');
-const sleep = require('../utils/sleep');
 
-// const submitCode = async (req, res) => {
-//   try {
-//     const submissions = req.body.submissions;
-
-//     const tokens = await createSubmissions(submissions);
-
-//     const tokensParam = tokens.join(',');
-
-//     // Because submission batch doesn't have wait parameter,
-//     // Judge0 provide callback_url for "each submission" so it really hard to implement
-//     // So I need to poll the API to check if the submission is complete
-//     // A little bit slow but it works :)
-//     await sleep(1000); // Wait for 1 second before polling
-
-//     let result = await getSubmission(tokensParam);
-//     while (!submitComplete(result)) {
-//       await sleep(1000);
-//       result = await getSubmission(tokensParam);
-//     }
-
-//     res.status(200).send({ data: result });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).send({ error: translate('internal_server_error', req.hl ) });
-//   }
-// };
-
+/**
+ * Create submission flow:
+ * 1. Find the problem and its test cases
+ * 2. Submit code to Judge0 and get the submission result
+ * 4. Calculate the total point
+ * 5. Save the submission and submission results to database
+ * 6. Return the formatted submission containing submission results
+ */
 const createSubmission = async (req, res) => {
   try {
     // Authenticate middleware has attached the user to the request object
@@ -54,61 +33,56 @@ const createSubmission = async (req, res) => {
         where: { active: true },
       },
     });
-    const languageId = problem.dataValues.languageId;
 
     const testCases = problem.testCases;
 
-    const submissions = [];
-
+    const inputSubmissions = [];
     for (testCase of testCases) {
       const submission = {
         source_code: sourceCode,
-        language_id: languageId,
-        stdin: testCase.dataValues.stdin,
-        expected_output: testCase.dataValues.expectedOutput,
+        language_id: problem.languageId,
+        stdin: testCase.stdin,
+        expected_output: testCase.expectedOutput,
       };
-      submissions.push(submission);
+
+      inputSubmissions.push(submission);
     }
 
     // Submit code to Judge0
-    const tokens = await createSubmissions(submissions);
-    const tokensParam = tokens.join(',');
-
-    await sleep(1000); // Wait for 1 second before polling
-
-    let result = await getSubmission(tokensParam);
-    while (!submitComplete(result)) {
-      await sleep(1000);
-      result = await getSubmission(tokensParam);
-    }
+    const judge0Submissions = await getJudge0Submissions(inputSubmissions);
 
     let totalPoint = 0;
     const submissionResults = [];
-    const listOutput = [];
-    for (var i = 0; i < result.length; i++) {
-      const correct = result[i].status.id == 3;
+    const results = [];
+    for (var i = 0; i < judge0Submissions.length; i++) {
+      const correct = judge0Submissions[i].status.id == 3;
       if (correct) {
-        totalPoint += problem.dataValues.pointPerTestCase;
+        totalPoint += problem.pointPerTestCase;
       }
 
       // TODO: Handle error and encode base64
-      const output = result[i].stdout;
+      const stdout = judge0Submissions[i].stdout;
 
       const submissionResult = {
-        testCaseId: testCase.dataValues.id,
-        output,
+        testCaseId: testCase.id,
+        output: stdout,
         correct,
       };
       submissionResults.push(submissionResult);
 
-      const outputItem = {
-        stdin: testCases[i].dataValues.stdin,
-        output,
-        correct,
-      };
-      listOutput.push(outputItem);
+      // Only show the test case if it is marked as show
+      if (testCases[i].show == true) {
+        const resultItem = {
+          stdin: testCases[i].stdin,
+          output: stdout,
+          correct,
+          show: true,
+        };
+        results.push(resultItem);
+      }
     }
 
+    // Save submission to database
     const submission = await Submission.create({
       sourceCode,
       totalPoint: totalPoint,
@@ -116,31 +90,23 @@ const createSubmission = async (req, res) => {
       problemId,
     });
 
+    // Add submission id to each submission result
     for (submissionResult of submissionResults) {
-      submissionResult.submissionId = submission.dataValues.id;
+      submissionResult.submissionId = submission.id;
     }
 
+    // Save submission results to database
     await SubmissionResult.bulkCreate(submissionResults);
 
-    submission.dataValues.testCase = listOutput;
+    // Attach some additional data to the submission
+    submission.dataValues.results = results;
+    submission.dataValues.totalTestCase = testCases.length;
 
-    res.status(200).send({ data: submission });
+    res.status(201).send({ data: submission });
   } catch (error) {
     console.log(error);
     res.status(500).send({ error: translate('internal_server_error', req.hl) });
   }
 };
-
-function submitComplete(submissions) {
-  let isComplete = true;
-  for (sub of submissions) {
-    console.log(sub);
-    if (sub.status.id == 1 || sub.status.id == 2) {
-      isComplete = false;
-      break;
-    }
-  }
-  return isComplete;
-}
 
 module.exports = createSubmission;
