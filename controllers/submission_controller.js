@@ -51,6 +51,8 @@ const createSubmission = async (req, res) => {
     // Submit code to Judge0
     const judge0Submissions = await getJudge0Submissions(inputSubmissions);
 
+    console.log(judge0Submissions);
+
     let totalPoint = 0;
     const submissionResults = [];
     const results = [];
@@ -61,11 +63,17 @@ const createSubmission = async (req, res) => {
       }
 
       // TODO: Handle error and encode base64
-      const stdout = judge0Submissions[i].stdout;
+      let output =
+        judge0Submissions[i].stdout ||
+        judge0Submissions[i].stderr ||
+        judge0Submissions[i].compile_output ||
+        '';
+      // Replace all \n with ''
+      output = output.replace(/\n/g, '');
 
       const submissionResult = {
         testCaseId: testCase.id,
-        output: stdout,
+        output,
         correct,
       };
       submissionResults.push(submissionResult);
@@ -74,7 +82,7 @@ const createSubmission = async (req, res) => {
       if (testCases[i].show == true) {
         const resultItem = {
           stdin: testCases[i].stdin,
-          output: stdout,
+          output,
           correct,
           show: true,
         };

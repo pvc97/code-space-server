@@ -25,7 +25,7 @@ const fetchJudge0Submission = async (joinedTokens) => {
   const response = await apiProvider.get('/submissions/batch', {
     params: {
       tokens: joinedTokens,
-      // base64_encoded: true,
+      base64_encoded: true,
       fields:
         'source_code,expected_output,stdin,stdout,stderr,time,memory,compile_output,status',
     },
