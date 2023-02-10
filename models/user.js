@@ -13,9 +13,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'roleId',
         as: 'role',
       });
-      User.hasMany(RefreshToken, { as: 'refreshTokens' });
-      User.hasMany(Course, { as: 'courses' }); // One teacher can have many courses
-      User.hasMany(StudentCourse, { as: 'studentCourses' }); // One student can have many courses
+      User.hasMany(RefreshToken, { foreignKey: 'userId', as: 'refreshTokens' });
+      User.hasMany(Course, { foreignKey: 'createdBy', as: 'courses' }); // One teacher can have many courses
+      User.hasMany(StudentCourse, {
+        foreignKey: 'studentId',
+        as: 'studentCourses',
+      }); // One student can have many courses
 
       // Have to add foreignKey: 'createdBy' to fix change UserId to createdBy in Submission model
       // If not, it will be a error: Error: Unknown column 'UserId' in 'field list'

@@ -9,7 +9,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate({ Problem, SubmissionResult }) {
       TestCase.belongsTo(Problem, { foreignKey: 'problemId', as: 'problem' });
-      TestCase.hasMany(SubmissionResult, { as: 'submissionResults' });
+      TestCase.hasMany(SubmissionResult, {
+        foreignKey: 'testCaseId',
+        as: 'submissionResults',
+      });
     }
   }
   TestCase.init(
