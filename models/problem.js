@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'problemId',
         as: 'submissions',
       });
-      Problem.hasMany(TestCase, { as: 'testCases' });
+      Problem.hasMany(TestCase, { foreignKey: 'problemId', as: 'testCases' });
       Problem.belongsTo(Language, { foreignKey: 'languageId', as: 'language' });
     }
   }
