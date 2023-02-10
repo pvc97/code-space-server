@@ -116,11 +116,7 @@ const createSubmission = async (req, res) => {
     // Save submission results to database
     await SubmissionResult.bulkCreate(submissionResults);
 
-    // Attach some additional data to the submission
-    submission.dataValues.results = results;
-    submission.dataValues.totalTestCase = testCases.length;
-
-    res.status(201).send({ data: submission });
+    res.status(201).send({ data: { id: submission.id } });
   } catch (error) {
     console.log(error);
     res.status(500).send({ error: translate('internal_server_error', req.hl) });
@@ -153,6 +149,7 @@ const getSubmissionDetail = async (req, res) => {
         const resultItem = {
           stdin: testCase.stdin,
           output: submissionResult.output,
+          expectedOutput: testCase.expectedOutput,
           correct: submissionResult.correct,
           show: testCase.show,
         };
