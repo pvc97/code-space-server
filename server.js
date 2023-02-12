@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const i18next = require('i18next');
 const fs = require('fs');
@@ -37,6 +38,10 @@ app.use(handleInvalidJson);
 // TODO: Remove cors middleware in production
 // This only for development to make flutter web can access the api
 app.use(cors);
+
+// Static files
+const publicPathDirectory = path.join(__dirname, './public');
+app.use('/public', express.static(publicPathDirectory));
 
 app.use('/api/v1', rootRouter);
 
