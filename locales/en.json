@@ -18,5 +18,6 @@
   "requires_at_least_one_test_case": "Problem requires at least one test case",
   "required_language_id": "Required language id",
   "invalid_language_id": "Invalid language id",
-  "invalid_course_id": "Invalid course id"
+  "invalid_course_id": "Invalid course id",
+  "file_type_not_supported": "File type not supported"
 }

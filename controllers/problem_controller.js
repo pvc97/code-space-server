@@ -3,7 +3,7 @@ const { Language, Course } = require('../models');
 
 const createProblem = async (req, res) => {
   try {
-    console.log(req);
+    // console.log(req);
     // Only teacher can create problem,
     // Use authorization middleware to check if user is teacher
     const teacherId = req.user.id;

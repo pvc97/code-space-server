@@ -18,5 +18,6 @@
   "requires_at_least_one_test_case": "Bài tập phải có ít nhất một test case",
   "required_language_id": "Mã ngôn ngữ không được để trống",
   "invalid_language_id": "Mã ngôn ngữ không hợp lệ",
-  "invalid_course_id": "Mã khóa học không hợp lệ"
+  "invalid_course_id": "Mã khóa học không hợp lệ",
+  "file_type_not_supported": "Định dạng file không được hỗ trợ"
 }
