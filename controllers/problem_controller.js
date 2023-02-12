@@ -1,5 +1,5 @@
 const translate = require('../utils/translate');
-const { Language, Course } = require('../models');
+const { Language, Course, Problem, TestCase, sequelize } = require('../models');
 
 const createProblem = async (req, res) => {
   try {
@@ -9,8 +9,9 @@ const createProblem = async (req, res) => {
     const teacherId = req.user.id;
     const courseId = req.body.courseId;
     const name = req.body.name;
-    const testCases = req.body.testCases;
+    const testCases = JSON.parse(req.body.testCases);
     const languageId = req.body.languageId;
+    const pointPerTestCase = req.body.pointPerTestCase;
     const file = req.file;
     const multerError = req.multerError;
 
@@ -23,6 +24,8 @@ const createProblem = async (req, res) => {
         .status(400)
         .send({ error: translate('required_pdf_file', req.hl) });
     }
+
+    const pdfPath = file.path.replace(/\\/g, '/');
 
     if (!courseId) {
       return res
@@ -63,7 +66,26 @@ const createProblem = async (req, res) => {
         .send({ error: translate('invalid_language_id', req.hl) });
     }
 
-    return res.status(201).send({ message: 'OK' });
+    // Create problem with test cases
+    const problem = await sequelize.transaction(async (transaction) => {
+      const problemResult = await Problem.create({
+        name,
+        pdfPath,
+        pointPerTestCase,
+        courseId,
+        languageId,
+      });
+
+      const testCasesResult = testCases.map((testCase) => ({
+        ...testCase,
+        problemId: problemResult.id,
+      }));
+
+      await TestCase.bulkCreate(testCasesResult, { transaction });
+      return problemResult;
+    });
+
+    return res.status(201).send({ data: problem });
   } catch (error) {
     console.log(error);
     return res
