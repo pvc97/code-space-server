@@ -19,5 +19,6 @@
   "required_language_id": "Mã ngôn ngữ không được để trống",
   "invalid_language_id": "Mã ngôn ngữ không hợp lệ",
   "invalid_course_id": "Mã khóa học không hợp lệ",
-  "file_type_not_supported": "Định dạng file không được hỗ trợ"
+  "file_type_not_supported": "Định dạng file không được hỗ trợ",
+  "limit_file_size": "Kích thước file quá lớn - tối đa 10MB"
 }

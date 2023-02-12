@@ -54,7 +54,9 @@ const createProblem = async (req, res) => {
     return res.status(201).send({ message: 'OK' });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error: translate('internal_server_error', req.hl) });
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
   }
 };
 
