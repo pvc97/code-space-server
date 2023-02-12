@@ -128,7 +128,35 @@ const getProblem = async (req, res) => {
   }
 };
 
+const deleteProblem = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const problem = await Problem.findOne({
+      where: {
+        id: id,
+        active: true,
+      },
+    });
+
+    if (!problem) {
+      return res
+        .status(400)
+        .send({ error: translate('invalid_problem_id', req.hl) });
+    }
+
+    await problem.update({ active: false });
+
+    return res.status(200).send({ data: translate('delete_success', req.hl) });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
   createProblem,
   getProblem,
+  deleteProblem,
 };

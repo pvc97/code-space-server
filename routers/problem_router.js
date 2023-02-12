@@ -4,6 +4,7 @@ const { authorize } = require('../middlewares/auth/authorize');
 const {
   createProblem,
   getProblem,
+  deleteProblem,
 } = require('../controllers/problem_controller');
 const { Role } = require('../models');
 const uploadPdf = require('../middlewares/upload/upload_pdf');
@@ -19,5 +20,12 @@ problemRouter.post(
 );
 
 problemRouter.get('/:id', authenticate, getProblem);
+
+problemRouter.delete(
+  '/:id',
+  authenticate,
+  authorize([Role.Teacher]),
+  deleteProblem
+);
 
 module.exports = problemRouter;

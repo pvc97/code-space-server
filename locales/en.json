@@ -21,5 +21,7 @@
   "invalid_course_id": "Invalid course id",
   "file_type_not_supported": "File type not supported",
   "limit_file_size": "File size limit exceeded - 10MB",
-  "required_pdf_file": "Required PDF file"
+  "required_pdf_file": "Required PDF file",
+  "delete_success": "Delete success",
+  "invalid_problem_id": "Invalid problem id"
 }
