@@ -11,6 +11,13 @@ const createProblem = async (req, res) => {
     const name = req.body.name;
     const testCases = req.body.testCases;
     const languageId = req.body.languageId;
+    const file = req.file;
+
+    if (!file) {
+      return res
+        .status(400)
+        .send({ error: translate('required_pdf_file', req.hl) });
+    }
 
     if (!courseId) {
       return res
@@ -53,6 +60,7 @@ const createProblem = async (req, res) => {
 
     return res.status(201).send({ message: 'OK' });
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .send({ error: translate('internal_server_error', req.hl) });
