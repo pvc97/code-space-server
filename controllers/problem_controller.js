@@ -12,6 +12,11 @@ const createProblem = async (req, res) => {
     const testCases = req.body.testCases;
     const languageId = req.body.languageId;
     const file = req.file;
+    const multerError = req.multerError;
+
+    if (multerError) {
+      return res.status(400).send({ error: translate(multerError, req.hl) });
+    }
 
     if (!file) {
       return res

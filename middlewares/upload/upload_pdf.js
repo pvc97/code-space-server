@@ -1,10 +1,9 @@
 // TODO: If upload has error, multer will block next request
+// https://github.com/expressjs/multer/issues/53#issuecomment-1168608705
+
 // Nodejs app will be blocked next request,
 // And become normal after request again
-// I don't find any solution for this problem
-// But It is ok for now, because I will limit file size to 10M and filter file type at client side
-// To make sure error will not happen
-// https://github.com/expressjs/multer/issues/53#issuecomment-1168608705
+// I have find solution for this problem by not using return cb(new Error...) in fileFilter
 
 const multer = require('multer');
 const mkdirp = require('mkdirp');
@@ -44,7 +43,10 @@ const upload = multer({
   limits: { fileSize: MAX_PROBLEM_FILE_SIZE },
   fileFilter: (req, file, cb) => {
     if (path.extname(file.originalname) !== '.pdf') {
-      return cb(new Error(translate('file_type_not_supported', req.hl)));
+      // Solution to prevent multer block next request is not using return cb(new Error...)
+      // return cb(new Error(translate('file_type_not_supported', req.hl)));
+      req.multerError = 'file_type_not_supported';
+      return cb(null, false);
     }
 
     return cb(null, true);
