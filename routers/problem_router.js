@@ -1,7 +1,10 @@
 const express = require('express');
 const { authenticate } = require('../middlewares/auth/authenticate');
 const { authorize } = require('../middlewares/auth/authorize');
-const { createProblem } = require('../controllers/problem_controller');
+const {
+  createProblem,
+  getProblem,
+} = require('../controllers/problem_controller');
 const { Role } = require('../models');
 const uploadPdf = require('../middlewares/upload/upload_pdf');
 
@@ -14,5 +17,7 @@ problemRouter.post(
   uploadPdf,
   createProblem
 );
+
+problemRouter.get('/:id', authenticate, getProblem);
 
 module.exports = problemRouter;

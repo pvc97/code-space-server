@@ -94,6 +94,41 @@ const createProblem = async (req, res) => {
   }
 };
 
+const getProblem = async (req, res) => {
+  const { id } = req.params;
+  try {
+    // findByPk don't work with with where clause
+    // So I have to use findOne
+    const problem = await Problem.findOne({
+      where: {
+        id: id,
+        active: true,
+      },
+      include: {
+        model: Language,
+        as: 'language',
+      },
+    });
+
+    if (!problem) {
+      return res
+        .status(400)
+        .send({ error: translate('invalid_problem_id', req.hl) });
+    }
+
+    delete problem.dataValues.languageId;
+    delete problem.dataValues.active;
+
+    return res.status(200).send({ data: problem });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
   createProblem,
+  getProblem,
 };
