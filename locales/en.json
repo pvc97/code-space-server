@@ -23,5 +23,6 @@
   "limit_file_size": "File size limit exceeded - 10MB",
   "required_pdf_file": "Required PDF file",
   "delete_success": "Delete success",
-  "invalid_problem_id": "Invalid problem id"
+  "invalid_problem_id": "Invalid problem id",
+  "permission_denied": "Permission denied"
 }

@@ -5,6 +5,7 @@ const {
   Problem,
   TestCase,
   Role,
+  StudentCourse,
   sequelize,
 } = require('../models');
 

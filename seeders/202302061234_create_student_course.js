@@ -1,5 +1,7 @@
 'use strict';
 
+const { v4: uuidv4 } = require('uuid');
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -23,6 +25,7 @@ module.exports = {
       'StudentCourses',
       [
         {
+          id: uuidv4(),
           studentId: studentId,
           courseId: courseId,
         },

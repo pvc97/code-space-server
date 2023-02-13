@@ -23,5 +23,6 @@
   "limit_file_size": "Kích thước file quá lớn - tối đa 10MB",
   "required_pdf_file": "File PDF không được để trống",
   "delete_success": "Xóa thành công",
-  "invalid_problem_id": "Mã bài tập không hợp lệ"
+  "invalid_problem_id": "Mã bài tập không hợp lệ",
+  "permission_denied": "Không có quyền truy cập"
 }
