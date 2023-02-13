@@ -12,5 +12,17 @@
   "register_username_or_email_already_exists": "Tên đăng nhập hoặc email đã tồn tại",
   "required_source_code": "Mã nguồn không được để trống",
   "required_problem_id": "Mã bài tập không được để trống",
-  "submission_not_found": "Không tìm thấy bài nộp"
+  "submission_not_found": "Không tìm thấy bài nộp",
+  "required_course_id": "Mã khóa học không được để trống",
+  "required_problem_name": "Tên bài tập không được để trống",
+  "requires_at_least_one_test_case": "Bài tập phải có ít nhất một test case",
+  "required_language_id": "Mã ngôn ngữ không được để trống",
+  "invalid_language_id": "Mã ngôn ngữ không hợp lệ",
+  "invalid_course_id": "Mã khóa học không hợp lệ",
+  "file_type_not_supported": "Định dạng file không được hỗ trợ",
+  "limit_file_size": "Kích thước file quá lớn - tối đa 10MB",
+  "required_pdf_file": "File PDF không được để trống",
+  "delete_success": "Xóa thành công",
+  "invalid_problem_id": "Mã bài tập không hợp lệ",
+  "permission_denied": "Không có quyền truy cập"
 }

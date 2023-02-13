@@ -7,7 +7,9 @@ const authorize = (roles) => (req, res, next) => {
     if (userRole && roles.includes(userRole)) {
       next();
     } else {
-      return res.status(403).send({ error: 'Permission denied' });
+      return res
+        .status(403)
+        .send({ error: translate('permission_denied', req.hl) });
     }
   } catch (error) {
     console.log(error);

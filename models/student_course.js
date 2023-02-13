@@ -14,6 +14,11 @@ module.exports = (sequelize, DataTypes) => {
   }
   StudentCourse.init(
     {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+      },
       // studentId: {
       //   type: DataTypes.UUID,
       //   allowNull: false,
