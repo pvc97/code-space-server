@@ -67,13 +67,6 @@ const getProblemsCourse = async (req, res) => {
           courseId: courseId,
           studentId: userId,
         },
-        // include: {
-        //   model: Course,
-        //   as: 'course',
-        //   where: {
-        //     active: true,
-        //   },
-        // },
       });
 
       if (studentCourse) {
