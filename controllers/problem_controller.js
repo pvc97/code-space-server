@@ -180,12 +180,15 @@ const deleteProblem = async (req, res) => {
   }
 };
 
+// TODO: Handle update problem
 const updateProblem = async (req, res) => {
   // If update problem
   // There are two ways to handle submissions of this problem
   // 1. Delete all submissions of this problem, student have to submit again
   // 2. Rejudge all submissions
   // I will choose option 1: It's easier to implement
+  // Only delete submissions when test cases change, file pdf change
+
   try {
     const name = req.body.name;
     const testCases = JSON.parse(req.body.testCases);
@@ -194,60 +197,60 @@ const updateProblem = async (req, res) => {
     const file = req.file;
     const multerError = req.multerError;
 
-    if (multerError) {
-      return res.status(400).send({ error: translate(multerError, req.hl) });
-    }
+    // if (multerError) {
+    //   return res.status(400).send({ error: translate(multerError, req.hl) });
+    // }
 
-    let pdfPath = undefined;
-    if (!file) {
-      pdfPath = file.path.replace(/\\/g, '/');
-    }
+    // let pdfPath = undefined;
+    // if (!file) {
+    //   pdfPath = file.path.replace(/\\/g, '/');
+    // }
 
-    if (!testCases || testCases.length === 0) {
-      return res
-        .status(400)
-        .send({ error: translate('requires_at_least_one_test_case', req.hl) });
-    }
+    // if (!testCases || testCases.length === 0) {
+    //   return res
+    //     .status(400)
+    //     .send({ error: translate('requires_at_least_one_test_case', req.hl) });
+    // }
 
-    if (!languageId) {
-      return res
-        .status(400)
-        .send({ error: translate('required_language_id', req.hl) });
-    }
+    // if (!languageId) {
+    //   return res
+    //     .status(400)
+    //     .send({ error: translate('required_language_id', req.hl) });
+    // }
 
-    // Check if course exists
-    const course = await Course.findByPk(courseId);
-    if (!course) {
-      return res
-        .status(400)
-        .send({ error: translate('invalid_course_id', req.hl) });
-    }
-    // Check if language exists
-    const language = await Language.findByPk(languageId);
-    if (!language) {
-      return res
-        .status(400)
-        .send({ error: translate('invalid_language_id', req.hl) });
-    }
+    // // Check if course exists
+    // const course = await Course.findByPk(courseId);
+    // if (!course) {
+    //   return res
+    //     .status(400)
+    //     .send({ error: translate('invalid_course_id', req.hl) });
+    // }
+    // // Check if language exists
+    // const language = await Language.findByPk(languageId);
+    // if (!language) {
+    //   return res
+    //     .status(400)
+    //     .send({ error: translate('invalid_language_id', req.hl) });
+    // }
 
-    // Create problem with test cases
-    const problem = await sequelize.transaction(async (transaction) => {
-      const problemResult = await Problem.create({
-        name,
-        pdfPath,
-        pointPerTestCase,
-        courseId,
-        languageId,
-      });
+    // // Create problem with test cases
+    // const problem = await sequelize.transaction(async (transaction) => {
+    //   const problemResult = await Problem.create({
+    //     name,
+    //     pdfPath,
+    //     pointPerTestCase,
+    //     courseId,
+    //     languageId,
+    //   });
 
-      const testCasesResult = testCases.map((testCase) => ({
-        ...testCase,
-        problemId: problemResult.id,
-      }));
+    //   const testCasesResult = testCases.map((testCase) => ({
+    //     ...testCase,
+    //     problemId: problemResult.id,
+    //   }));
 
-      await TestCase.bulkCreate(testCasesResult, { transaction });
-      return problemResult;
-    });
+    //   await TestCase.bulkCreate(testCasesResult, { transaction });
+    //   return problemResult;
+    // });
 
     return res.status(201).send({ data: problem });
   } catch (error) {
