@@ -181,6 +181,11 @@ const deleteProblem = async (req, res) => {
 };
 
 const updateProblem = async (req, res) => {
+  // If update problem
+  // There are two ways to handle submissions of this problem
+  // 1. Delete all submissions of this problem, student have to submit again
+  // 2. Rejudge all submissions
+  // I will choose option 1: It's easier to implement
   try {
     const name = req.body.name;
     const testCases = JSON.parse(req.body.testCases);
