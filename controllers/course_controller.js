@@ -19,8 +19,9 @@ const getProblemsCourse = async (req, res) => {
     const courseId = req.params.id;
     const role = req.user.roleType;
     const userId = req.user.id;
-    const limit = parseInt(req.query.limit);
-    const offset = parseInt(req.query.offset);
+    const limit = req.query.limit * 1 || DEFAULT_LIMIT;
+    // if req.query.limit is text => req.query.limit * 1 = NaN => limit = DEFAULT_LIMIT
+    const offset = req.query.offset * 1 || DEFAULT_OFFSET;
     const q = req.query.q;
 
     if (!courseId) {
@@ -98,8 +99,8 @@ const getProblemsCourse = async (req, res) => {
     // Find all problems of this course
     const problems = await Problem.findAll({
       where: whereCondition,
-      limit: limit || DEFAULT_LIMIT,
-      offset: offset || DEFAULT_OFFSET,
+      limit: limit,
+      offset: offset,
       attributes: ['id', 'name'],
       order: [['createdAt', 'ASC']], // Order by created date from oldest to newest (ASC)
     });
