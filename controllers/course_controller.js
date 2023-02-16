@@ -1,5 +1,7 @@
+const { Op } = require('sequelize');
 const translate = require('../utils/translate');
 const { Course, Problem, Role, StudentCourse } = require('../models');
+const { DEFAULT_LIMIT, DEFAULT_OFFSET } = require('../constants/constants');
 
 const getCourseDetail = async (req, res) => {
   return res.status(200).send({ message: 'OK' });
@@ -17,6 +19,9 @@ const getProblemsCourse = async (req, res) => {
     const courseId = req.params.id;
     const role = req.user.roleType;
     const userId = req.user.id;
+    const limit = parseInt(req.query.limit);
+    const offset = parseInt(req.query.offset);
+    const q = req.query.q;
 
     if (!courseId) {
       return res
@@ -80,13 +85,23 @@ const getProblemsCourse = async (req, res) => {
         .send({ error: translate('permission_denied', req.hl) });
     }
 
+    const whereCondition = {};
+    whereCondition.courseId = courseId;
+    whereCondition.active = true;
+
+    if (q) {
+      whereCondition.name = {
+        [Op.like]: `%${q}%`,
+      };
+    }
+
     // Find all problems of this course
     const problems = await Problem.findAll({
-      where: {
-        courseId: courseId,
-        active: true,
-      },
+      where: whereCondition,
+      limit: limit || DEFAULT_LIMIT,
+      offset: offset || DEFAULT_OFFSET,
       attributes: ['id', 'name'],
+      order: [['createdAt', 'ASC']], // Order by created date from oldest to newest (ASC)
     });
 
     return res.status(200).send({ data: problems });
