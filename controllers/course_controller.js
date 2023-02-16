@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
 const translate = require('../utils/translate');
 const { Course, Problem, Role, StudentCourse } = require('../models');
-const { DEFAULT_LIMIT, DEFAULT_OFFSET } = require('../constants/constants');
+const { DEFAULT_LIMIT, DEFAULT_PAGE } = require('../constants/constants');
 
 const getCourseDetail = async (req, res) => {
   return res.status(200).send({ message: 'OK' });
@@ -21,7 +21,8 @@ const getProblemsCourse = async (req, res) => {
     const userId = req.user.id;
     const limit = req.query.limit * 1 || DEFAULT_LIMIT;
     // if req.query.limit is text => req.query.limit * 1 = NaN => limit = DEFAULT_LIMIT
-    const offset = req.query.offset * 1 || DEFAULT_OFFSET;
+    const page = req.query.page * 1 || DEFAULT_PAGE;
+    const offset = (page - 1) * limit;
     const q = req.query.q;
 
     if (!courseId) {
