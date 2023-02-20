@@ -192,8 +192,52 @@ const deleteCourse = async (req, res) => {
   }
 };
 
+const getAllCourses = async (req, res) => {
+  try {
+    const limit = req.query.limit * 1 || DEFAULT_LIMIT;
+    // if req.query.limit is text => req.query.limit * 1 = NaN => limit = DEFAULT_LIMIT
+    const page = req.query.page * 1 || DEFAULT_PAGE;
+    const offset = (page - 1) * limit;
+    const q = req.query.q;
+
+    const whereCondition = {};
+    whereCondition.active = true;
+
+    if (q) {
+      whereCondition.name = {
+        [Op.like]: `%${q}%`,
+      };
+    }
+
+    // Find all courses
+    const courses = await Course.findAll({
+      where: whereCondition,
+      limit: limit,
+      offset: offset,
+      attributes: ['id', 'name', 'code'],
+      include: [
+        {
+          model: User,
+          as: 'teacher',
+          where: { active: true },
+          attributes: ['id', 'name', 'email'],
+        },
+      ],
+      order: [['createdAt', 'ASC']], // Order by created date from oldest to newest (ASC)
+    });
+
+    return res.status(200).send({ data: courses });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
   deleteCourse,
+  getAllCourses,
   getCourseDetail,
   getProblemsCourse,
 };
