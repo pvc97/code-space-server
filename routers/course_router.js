@@ -6,6 +6,7 @@ const { Role } = require('../models');
 const {
   deleteCourse,
   createCourse,
+  updateCourse,
   getAllCourses,
   getCourseDetail,
   getProblemsCourse,
@@ -22,5 +23,7 @@ courseRouter.delete('/:id', authenticate, deleteCourse);
 courseRouter.get('/', authenticate, getAllCourses);
 
 courseRouter.post('/', authenticate, authorize([Role.Manager]), createCourse);
+
+courseRouter.put('/:id', authenticate, authorize([Role.Manager]), updateCourse);
 
 module.exports = courseRouter;
