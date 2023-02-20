@@ -1,10 +1,60 @@
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const translate = require('../utils/translate');
-const { Course, Problem, Role, StudentCourse } = require('../models');
+const { Course, Problem, Role, StudentCourse, User } = require('../models');
 const { DEFAULT_LIMIT, DEFAULT_PAGE } = require('../constants/constants');
 
+// All user logged in can get course detail
 const getCourseDetail = async (req, res) => {
-  return res.status(200).send({ message: 'OK' });
+  try {
+    const courseId = req.params.id;
+
+    if (!courseId) {
+      return res
+        .status(400)
+        .send({ error: translate('required_course_id', req.hl) });
+    }
+
+    // findByPk don't work with with where clause
+    // So I have to use findOne
+    const course = await Course.findOne({
+      where: {
+        id: courseId,
+        active: true,
+      },
+      // attributes: {
+      //   exclude: [
+      //     'createdAt',
+      //     'updatedAt',
+      //     'createdBy',
+      //     'accessCode',
+      //     'active',
+      //   ],
+      // },
+      // Use attributes to select columns instead of exclude because exclude so long
+      attributes: ['id', 'name', 'code'],
+      include: [
+        {
+          model: User,
+          as: 'teacher',
+          where: { active: true },
+          attributes: ['id', 'name', 'email'],
+        },
+      ],
+    });
+
+    if (!course) {
+      return res
+        .status(400)
+        .send({ error: translate('invalid_course_id', req.hl) });
+    }
+
+    return res.status(200).send({ data: course });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
+  }
 };
 
 /**
