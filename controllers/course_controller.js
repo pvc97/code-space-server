@@ -165,7 +165,35 @@ const getProblemsCourse = async (req, res) => {
   }
 };
 
+const deleteCourse = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const course = await Course.findOne({
+      where: {
+        id: id,
+        active: true,
+      },
+    });
+
+    if (!course) {
+      return res
+        .status(400)
+        .send({ error: translate('invalid_course_id', req.hl) });
+    }
+
+    await course.update({ active: false });
+
+    return res.status(200).send({ data: translate('delete_success', req.hl) });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
-  getProblemsCourse,
+  deleteCourse,
   getCourseDetail,
+  getProblemsCourse,
 };
