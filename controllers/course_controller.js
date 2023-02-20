@@ -235,8 +235,54 @@ const getAllCourses = async (req, res) => {
   }
 };
 
+const createCourse = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const { name, code, accessCode } = req.body;
+
+    if (!name) {
+      return res
+        .status(400)
+        .send({ error: translate('required_course_name', req.hl) });
+    }
+
+    if (!code) {
+      return res
+        .status(400)
+        .send({ error: translate('required_course_code', req.hl) });
+    }
+
+    if (!accessCode) {
+      return res
+        .status(400)
+        .send({ error: translate('required_access_code', req.hl) });
+    }
+
+    // Create new course
+    const course = await Course.create({
+      name: name,
+      code: code,
+      accessCode: accessCode,
+      createdBy: userId,
+    });
+
+    return res.status(200).send({ data: course });
+  } catch (error) {
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(409).send({
+        error: translate('duplicate_course_code', req.hl),
+      });
+    }
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
   deleteCourse,
+  createCourse,
   getAllCourses,
   getCourseDetail,
   getProblemsCourse,

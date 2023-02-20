@@ -24,5 +24,9 @@
   "required_pdf_file": "Required PDF file",
   "delete_success": "Delete success",
   "invalid_problem_id": "Invalid problem id",
-  "permission_denied": "Permission denied"
+  "permission_denied": "Permission denied",
+  "required_course_name": "Required course name",
+  "required_course_code": "Required course code",
+  "required_access_code": "Required access code",
+  "duplicate_course_code": "Duplicate course code"
 }
