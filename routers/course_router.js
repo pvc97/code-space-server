@@ -1,8 +1,12 @@
 const express = require('express');
 const { authenticate } = require('../middlewares/auth/authenticate');
+const { authorize } = require('../middlewares/auth/authorize');
+const { Role } = require('../models');
+
 const {
-  getAllCourses,
   deleteCourse,
+  createCourse,
+  getAllCourses,
   getCourseDetail,
   getProblemsCourse,
 } = require('../controllers/course_controller');
@@ -16,5 +20,7 @@ courseRouter.get('/:id', authenticate, getCourseDetail);
 courseRouter.delete('/:id', authenticate, deleteCourse);
 
 courseRouter.get('/', authenticate, getAllCourses);
+
+courseRouter.post('/', authenticate, authorize([Role.Manager]), createCourse);
 
 module.exports = courseRouter;
