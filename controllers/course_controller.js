@@ -267,7 +267,7 @@ const createCourse = async (req, res) => {
       createdBy: userId,
     });
 
-    return res.status(200).send({ data: course });
+    return res.status(201).send({ data: course });
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
       return res.status(409).send({
@@ -280,9 +280,43 @@ const createCourse = async (req, res) => {
   }
 };
 
+const updateCourse = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const { name, code, accessCode } = req.body;
+
+    const course = await Course.update(
+      {
+        name: name,
+        code: code,
+        accessCode: accessCode,
+      },
+      {
+        where: { id: courseId, active: true },
+      }
+    );
+
+    console.log(course);
+
+    res.status(200).json({ data: course });
+  } catch (error) {
+    console.log(error);
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(409).send({
+        error: translate('duplicate_course_code', req.hl),
+      });
+    }
+
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
   deleteCourse,
   createCourse,
+  updateCourse,
   getAllCourses,
   getCourseDetail,
   getProblemsCourse,
