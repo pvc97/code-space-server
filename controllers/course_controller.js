@@ -285,18 +285,30 @@ const updateCourse = async (req, res) => {
     const courseId = req.params.id;
     const { name, code, accessCode } = req.body;
 
-    const course = await Course.update(
-      {
-        name: name,
-        code: code,
-        accessCode: accessCode,
-      },
-      {
-        where: { id: courseId, active: true },
-      }
-    );
+    const course = await Course.findOne({
+      where: { id: courseId, active: true },
+    });
 
-    console.log(course);
+    if (!course) {
+      return res
+        .status(400)
+        .send({ error: translate('invalid_course_id', req.hl) });
+    }
+
+    if (name) {
+      console.log(`name: ${name}`);
+      course.name = name;
+    }
+
+    if (code) {
+      course.code = code;
+    }
+
+    if (accessCode) {
+      course.accessCode = accessCode;
+    }
+
+    await course.save();
 
     res.status(200).json({ data: course });
   } catch (error) {
