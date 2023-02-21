@@ -26,7 +26,7 @@ module.exports = {
       [
         {
           id: uuidv4(),
-          username: 'cuongpv',
+          username: 'manager',
           name: 'Phạm Văn Cường',
           email: 'cuongpv@gmail.com',
           password: hashedPassword,
@@ -36,7 +36,7 @@ module.exports = {
         },
         {
           id: uuidv4(),
-          username: 'cuongpv1',
+          username: 'student',
           name: 'Phạm Student',
           email: 'cuongpv1@gmail.com',
           password: hashedPassword,
@@ -46,7 +46,7 @@ module.exports = {
         },
         {
           id: uuidv4(),
-          username: 'cuongpv2',
+          username: 'teacher',
           name: 'Phạm Teacher',
           email: 'cuongpv2@gmail.com',
           password: hashedPassword,

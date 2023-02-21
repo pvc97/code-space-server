@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
         as: 'role',
       });
       User.hasMany(RefreshToken, { foreignKey: 'userId', as: 'refreshTokens' });
-      User.hasMany(Course, { foreignKey: 'createdBy', as: 'courses' }); // One teacher can have many courses
+      User.hasMany(Course, { foreignKey: 'teacherId', as: 'courses' }); // One teacher can have many courses
       User.hasMany(StudentCourse, {
         foreignKey: 'studentId',
         as: 'studentCourses',
