@@ -237,9 +237,7 @@ const getAllCourses = async (req, res) => {
 
 const createCourse = async (req, res) => {
   try {
-    const userId = req.user.id;
-
-    const { name, code, accessCode } = req.body;
+    const { name, code, accessCode, teacherId } = req.body;
 
     if (!name) {
       return res
@@ -259,20 +257,32 @@ const createCourse = async (req, res) => {
         .send({ error: translate('required_access_code', req.hl) });
     }
 
+    if (!teacherId) {
+      return res
+        .status(400)
+        .send({ error: translate('required_teacher_id', req.hl) });
+    }
+
     // Create new course
     const course = await Course.create({
-      name: name,
-      code: code,
-      accessCode: accessCode,
-      createdBy: userId,
+      name,
+      code,
+      accessCode,
+      teacherId,
     });
 
     return res.status(201).send({ data: course });
   } catch (error) {
-    if (error.name === 'SequelizeUniqueConstraintError') {
-      return res.status(409).send({
-        error: translate('duplicate_course_code', req.hl),
-      });
+    console.log(error);
+    switch (error.name) {
+      case 'SequelizeForeignKeyConstraintError':
+        return res.status(409).send({
+          error: translate('invalid_teacher_id', req.hl),
+        });
+      case 'SequelizeUniqueConstraintError':
+        return res.status(409).send({
+          error: translate('duplicate_course_code', req.hl),
+        });
     }
     return res
       .status(500)
