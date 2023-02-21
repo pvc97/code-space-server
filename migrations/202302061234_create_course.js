@@ -17,7 +17,7 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      createdBy: {
+      teacherId: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {

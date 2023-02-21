@@ -28,5 +28,7 @@
   "required_course_name": "Tên khóa học không được để trống",
   "required_course_code": "Mã khóa học không được để trống",
   "required_access_code": "Mã truy cập không được để trống",
-  "duplicate_course_code": "Mã khóa học đã tồn tại"
+  "duplicate_course_code": "Mã khóa học đã tồn tại",
+  "required_teacher_id": "Mã giảng viên không được để trống",
+  "invalid_teacher_id": "Mã giảng viên không hợp lệ"
 }

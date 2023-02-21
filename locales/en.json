@@ -28,5 +28,7 @@
   "required_course_name": "Required course name",
   "required_course_code": "Required course code",
   "required_access_code": "Required access code",
-  "duplicate_course_code": "Duplicate course code"
+  "duplicate_course_code": "Duplicate course code",
+  "required_teacher_id": "Required teacher id",
+  "invalid_teacher_id": "Invalid teacher id"
 }
