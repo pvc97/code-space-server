@@ -106,7 +106,7 @@ const getProblemsCourse = async (req, res) => {
       const course = await Course.findOne({
         where: {
           id: courseId,
-          createdBy: userId,
+          teacherId: userId,
           active: true,
         },
       });
