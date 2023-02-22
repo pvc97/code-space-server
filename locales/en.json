@@ -30,5 +30,8 @@
   "required_access_code": "Required access code",
   "duplicate_course_code": "Duplicate course code",
   "required_teacher_id": "Required teacher id",
-  "invalid_teacher_id": "Invalid teacher id"
+  "invalid_teacher_id": "Invalid teacher id",
+  "only_student_can_join_course": "Only student can join course",
+  "already_joined_course": "Already joined course",
+  "invalid_access_code": "Invalid access code"
 }
