@@ -335,7 +335,79 @@ const updateCourse = async (req, res) => {
   }
 };
 
+// Only student can join course (already checked in authorize middleware)
+// Check if student already joined course
+// Check if access code is correct
+// Create new student course
+const joinCourse = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const role = req.user.roleType;
+    const { accessCode } = req.body;
+    const courseId = req.params.id;
+
+    // Check required fields
+    if (!accessCode) {
+      return res
+        .status(400)
+        .send({ error: translate('required_access_code', req.hl) });
+    }
+
+    if (!courseId) {
+      return res
+        .status(400)
+        .send({ error: translate('required_course_id', req.hl) });
+    }
+    //================================================================================================
+
+    const studentCourse = await StudentCourse.findOne({
+      where: {
+        courseId: courseId,
+        studentId: userId,
+      },
+    });
+
+    if (studentCourse) {
+      return res
+        .status(400)
+        .send({ error: translate('already_joined_course', req.hl) });
+    }
+
+    const course = await Course.findOne({
+      where: {
+        id: courseId,
+        active: true,
+      },
+    });
+
+    if (!course) {
+      return res
+        .status(400)
+        .send({ error: translate('invalid_course_id', req.hl) });
+    }
+
+    if (course.accessCode !== accessCode) {
+      return res
+        .status(400)
+        .send({ error: translate('invalid_access_code', req.hl) });
+    }
+
+    const newStudentCourse = await StudentCourse.create({
+      courseId: courseId,
+      studentId: userId,
+    });
+
+    return res.status(201).send({ data: newStudentCourse });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
+  joinCourse,
   deleteCourse,
   createCourse,
   updateCourse,

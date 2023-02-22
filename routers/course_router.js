@@ -4,6 +4,7 @@ const { authorize } = require('../middlewares/auth/authorize');
 const { Role } = require('../models');
 
 const {
+  joinCourse,
   deleteCourse,
   createCourse,
   updateCourse,
@@ -25,5 +26,12 @@ courseRouter.get('/', authenticate, getAllCourses);
 courseRouter.post('/', authenticate, authorize([Role.Manager]), createCourse);
 
 courseRouter.put('/:id', authenticate, authorize([Role.Manager]), updateCourse);
+
+courseRouter.post(
+  '/:id/join',
+  authenticate,
+  authorize([Role.Student]),
+  joinCourse
+);
 
 module.exports = courseRouter;
