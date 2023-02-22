@@ -25,6 +25,33 @@ const getUserInfo = async (req, res) => {
   }
 };
 
+const getAllTeachers = async (req, res) => {
+  try {
+    const teachers = await User.findAll({
+      where: {
+        active: true,
+      },
+      include: [
+        {
+          model: Role,
+          as: 'role',
+          where: {
+            type: Role.Teacher,
+          },
+          attributes: [],
+        },
+      ],
+      attributes: ['id', 'name', 'email'],
+    });
+
+    res.status(200).send({ data: teachers });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
   getUserInfo,
+  getAllTeachers,
 };
