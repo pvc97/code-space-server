@@ -192,6 +192,10 @@ const deleteCourse = async (req, res) => {
   }
 };
 
+// Filter my courses:
+// 1. If user is teacher => get all courses of this teacher
+// 2. If user is student => get all courses of this student
+// 3. If user is manager => get all courses
 const getAllCourses = async (req, res) => {
   try {
     const limit = req.query.limit * 1 || DEFAULT_LIMIT;
@@ -199,9 +203,32 @@ const getAllCourses = async (req, res) => {
     const page = req.query.page * 1 || DEFAULT_PAGE;
     const offset = (page - 1) * limit;
     const q = req.query.q;
+    const role = req.user.roleType;
+    const userId = req.user.id;
+    const me = req.query.me === 'true';
 
     const whereCondition = {};
     whereCondition.active = true;
+
+    if (me) {
+      if (role === Role.Teacher) {
+        whereCondition.teacherId = userId;
+      } else if (role === Role.Student) {
+        // TODO: Refactor this when remove StudentCourse table and use many-to-many relationship
+        // Because this is not efficient, but It's ok for now
+        const studentCourses = await StudentCourse.findAll({
+          where: {
+            studentId: userId,
+          },
+        });
+
+        const courseIds = studentCourses.map((item) => item.courseId);
+
+        whereCondition.id = {
+          [Op.in]: courseIds,
+        };
+      }
+    }
 
     if (q) {
       whereCondition.name = {
