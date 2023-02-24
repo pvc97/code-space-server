@@ -145,7 +145,8 @@ const getSubmissionDetail = async (req, res) => {
 
       console.log(testCase);
 
-      if (testCase.show == true) {
+      // Show the test case if it is marked as show or the submission result is correct
+      if (testCase.show === true || submissionResult.correct === true) {
         const resultItem = {
           stdin: testCase.stdin,
           output: submissionResult.output,
