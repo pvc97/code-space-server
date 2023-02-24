@@ -97,7 +97,7 @@ const createProblem = async (req, res) => {
       return problemResult;
     });
 
-    return res.status(201).send({ data: problem });
+    return res.status(201).send({ data: { id: problem.id } });
   } catch (error) {
     console.log(error);
     return res
