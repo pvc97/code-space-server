@@ -7,11 +7,18 @@ const { DEFAULT_LIMIT, DEFAULT_PAGE } = require('../constants/constants');
 const getCourseDetail = async (req, res) => {
   try {
     const courseId = req.params.id;
+    const role = req.user.roleType;
 
     if (!courseId) {
       return res
         .status(400)
         .send({ error: translate('required_course_id', req.hl) });
+    }
+
+    // Student can't get accessCode
+    const attributes = ['id', 'name', 'code'];
+    if (role === Role.Manager || role === Role.Teacher) {
+      attributes.push('accessCode');
     }
 
     // findByPk don't work with with where clause
@@ -31,7 +38,7 @@ const getCourseDetail = async (req, res) => {
       //   ],
       // },
       // Use attributes to select columns instead of exclude because exclude so long
-      attributes: ['id', 'name', 'code'],
+      attributes: attributes,
       include: [
         {
           model: User,
