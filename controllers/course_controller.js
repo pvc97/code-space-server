@@ -440,8 +440,40 @@ const joinCourse = async (req, res) => {
   }
 };
 
+const leaveCourse = async (req, res) => {
+  try {
+    // const role = req.user.roleType;
+    // Don't need role because in authorize middleware already checked,
+    // and StudentCourse table only have studentId
+    const userId = req.user.id;
+    const courseId = req.params.id;
+
+    if (!courseId) {
+      return res
+        .status(400)
+        .send({ error: translate('required_course_id', req.hl) });
+    }
+    //================================================================================================
+
+    await StudentCourse.destroy({
+      where: {
+        courseId: courseId,
+        studentId: userId,
+      },
+    });
+
+    res.sendStatus(204);
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
   joinCourse,
+  leaveCourse,
   deleteCourse,
   createCourse,
   updateCourse,
