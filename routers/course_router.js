@@ -5,6 +5,7 @@ const { Role } = require('../models');
 
 const {
   joinCourse,
+  leaveCourse,
   deleteCourse,
   createCourse,
   updateCourse,
@@ -32,6 +33,13 @@ courseRouter.post(
   authenticate,
   authorize([Role.Student]),
   joinCourse
+);
+
+courseRouter.delete(
+  '/:id/leave',
+  authenticate,
+  authorize([Role.Student]),
+  leaveCourse
 );
 
 module.exports = courseRouter;
