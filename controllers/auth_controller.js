@@ -27,7 +27,10 @@ const register = async (req, res) => {
       roleId,
     });
 
-    user.dataValues.role = roleType;
+    // Add roleType to user object and remove role object
+    user.dataValues.roleType = roleType;
+    delete user.dataValues.role;
+    delete user.dataValues.roleId;
 
     const accessToken = generateAccessToken(user.dataValues);
     const refreshToken = generateRefreshToken(user.dataValues);

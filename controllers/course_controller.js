@@ -471,7 +471,34 @@ const leaveCourse = async (req, res) => {
   }
 };
 
+const getRanking = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+
+    const ranking = await StudentCourse.findAll({
+      where: {
+        courseId: courseId,
+      },
+      include: [
+        {
+          model: User,
+          as: 'student',
+          attributes: ['id', 'name', 'email'],
+        },
+      ],
+    });
+
+    return res.status(200).json({ data: ranking });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
+  getRanking,
   joinCourse,
   leaveCourse,
   deleteCourse,
