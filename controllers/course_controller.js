@@ -1,6 +1,15 @@
 const { Op, where } = require('sequelize');
 const translate = require('../utils/translate');
-const { Course, Problem, Role, StudentCourse, User } = require('../models');
+const {
+  Course,
+  Problem,
+  Role,
+  StudentCourse,
+  User,
+  sequelize,
+} = require('../models');
+const { QueryTypes } = require('sequelize');
+
 const { DEFAULT_LIMIT, DEFAULT_PAGE } = require('../constants/constants');
 
 // All user logged in can get course detail
@@ -471,22 +480,38 @@ const leaveCourse = async (req, res) => {
   }
 };
 
+// Step 1: Find all problems of this course
+// Use for loop to find all submissions of each problem
+// With list of submissions, find the highest score for each user
 const getRanking = async (req, res) => {
   try {
     const courseId = req.params.id;
 
-    const ranking = await StudentCourse.findAll({
-      where: {
-        courseId: courseId,
-      },
-      include: [
-        {
-          model: User,
-          as: 'student',
-          attributes: ['id', 'name', 'email'],
-        },
-      ],
-    });
+    if (!courseId) {
+      return res
+        .status(400)
+        .send({ error: translate('required_course_id', req.hl) });
+    }
+
+    // https://sequelize.org/docs/v6/core-concepts/raw-queries/
+    const ranking = await sequelize.query(
+      `
+      SELECT users.name, MAX(submissions.totalPoint) as point
+      FROM users
+      INNER JOIN studentcourses
+      ON users.id = studentcourses.studentId AND studentcourses.courseId = "${courseId}"
+      INNER JOIN submissions
+      ON users.id = submissions.createdBy
+      INNER JOIN courses
+      ON studentcourses.courseId = courses.id
+      INNER JOIN problems
+      ON problems.courseId = courses.id AND submissions.problemId = problems.id
+      GROUP BY users.username
+      ORDER BY submissions.totalPoint DESC;`,
+      {
+        type: QueryTypes.SELECT,
+      }
+    );
 
     return res.status(200).json({ data: ranking });
   } catch (error) {
