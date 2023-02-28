@@ -1,6 +1,15 @@
 const { Op, where } = require('sequelize');
 const translate = require('../utils/translate');
-const { Course, Problem, Role, StudentCourse, User } = require('../models');
+const {
+  Course,
+  Problem,
+  Role,
+  StudentCourse,
+  User,
+  sequelize,
+} = require('../models');
+const { QueryTypes } = require('sequelize');
+
 const { DEFAULT_LIMIT, DEFAULT_PAGE } = require('../constants/constants');
 
 // All user logged in can get course detail
@@ -471,7 +480,54 @@ const leaveCourse = async (req, res) => {
   }
 };
 
+// Step 1: Find all problems of this course
+// Use for loop to find all submissions of each problem
+// With list of submissions, find the highest score for each user
+const getRanking = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+
+    if (!courseId) {
+      return res
+        .status(400)
+        .send({ error: translate('required_course_id', req.hl) });
+    }
+
+    // https://sequelize.org/docs/v6/core-concepts/raw-queries/
+    // Refer from: https://stackoverflow.com/questions/6553531/mysql-get-sum-grouped-max-of-group
+    // TODO: Recheck this query
+    // Unbelievable, SQL is so hard. It's 3am now :)
+    const ranking = await sequelize.query(
+      `
+      SELECT bests.name, SUM(best) as totalPoint
+      FROM 
+      (SELECT users.name, MAX(submissions.totalPoint) as best
+      FROM users
+      INNER JOIN studentcourses
+      ON users.id = studentcourses.studentId AND studentcourses.courseId = "${courseId}"
+      INNER JOIN problems
+      ON studentcourses.courseId = problems.courseId
+      INNER JOIN submissions
+      ON submissions.createdBy = users.id AND submissions.problemId = problems.id
+      GROUP BY users.id, problems.id) as bests
+      GROUP BY name
+      ORDER BY totalPoint DESC`,
+      {
+        type: QueryTypes.SELECT,
+      }
+    );
+
+    return res.status(200).json({ data: ranking });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
+  getRanking,
   joinCourse,
   leaveCourse,
   deleteCourse,

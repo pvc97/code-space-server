@@ -4,6 +4,7 @@ const { authorize } = require('../middlewares/auth/authorize');
 const { Role } = require('../models');
 
 const {
+  getRanking,
   joinCourse,
   leaveCourse,
   deleteCourse,
@@ -41,5 +42,7 @@ courseRouter.delete(
   authorize([Role.Student]),
   leaveCourse
 );
+
+courseRouter.get('/:id/ranking', authenticate, getRanking);
 
 module.exports = courseRouter;
