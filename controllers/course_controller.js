@@ -487,6 +487,11 @@ const getRanking = async (req, res) => {
   try {
     const courseId = req.params.id;
 
+    const limit = req.query.limit * 1 || DEFAULT_LIMIT;
+    // if req.query.limit is text => req.query.limit * 1 = NaN => limit = DEFAULT_LIMIT
+    const page = req.query.page * 1 || DEFAULT_PAGE;
+    const offset = (page - 1) * limit;
+
     if (!courseId) {
       return res
         .status(400)
@@ -510,7 +515,8 @@ const getRanking = async (req, res) => {
       ON submissions.createdBy = users.id AND submissions.problemId = problems.id
       GROUP BY users.id, problems.id) as bests
       GROUP BY name
-      ORDER BY totalPoint DESC`,
+      ORDER BY totalPoint DESC
+      LIMIT ${limit} OFFSET ${offset}`,
       {
         type: QueryTypes.SELECT,
       }
