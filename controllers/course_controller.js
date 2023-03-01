@@ -498,7 +498,7 @@ const getRanking = async (req, res) => {
     // TODO: Recheck this query
     const ranking = await sequelize.query(
       `
-      SELECT bests.name, CAST(SUM(best) AS UNSIGNED) as totalPoint
+      SELECT bests.name, CAST(COALESCE(SUM(best), 0) AS UNSIGNED) as totalPoint
       FROM 
       (SELECT users.name, MAX(submissions.totalPoint) as best
       FROM users
@@ -506,7 +506,7 @@ const getRanking = async (req, res) => {
       ON users.id = studentcourses.studentId AND studentcourses.courseId = "${courseId}"
       INNER JOIN problems
       ON studentcourses.courseId = problems.courseId
-      INNER JOIN submissions
+      LEFT JOIN submissions
       ON submissions.createdBy = users.id AND submissions.problemId = problems.id
       GROUP BY users.id, problems.id) as bests
       GROUP BY name
