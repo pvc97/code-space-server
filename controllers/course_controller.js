@@ -173,33 +173,39 @@ const getProblemsCourse = async (req, res) => {
     });
 
     // TODO: Get all problem with completed fields with one query
+    // Only calculate completed field if user is student
     for (const problem of problems) {
-      const problemId = problem.id;
-      const maxPointOfUser = await sequelize.query(
-        `SELECT COALESCE(MAX(submissions.totalPoint), 0) as maxPoint 
+      if (role === Role.Student) {
+        const problemId = problem.id;
+        const maxPointOfUser = await sequelize.query(
+          `SELECT COALESCE(MAX(submissions.totalPoint), 0) as maxPoint 
         FROM code_space_db.submissions
         WHERE submissions.problemId = "${problemId}" AND submissions.createdBy = "${userId}"`,
-        {
-          type: QueryTypes.SELECT,
-        }
-      );
-      const maxUserPoint = maxPointOfUser[0]['maxPoint'];
+          {
+            type: QueryTypes.SELECT,
+          }
+        );
+        const maxUserPoint = maxPointOfUser[0]['maxPoint'];
 
-      const numberOfTestcases = await sequelize.query(
-        `SELECT COUNT(*) as numberOfTestcases
+        const numberOfTestcases = await sequelize.query(
+          `SELECT COUNT(*) as numberOfTestcases
         FROM code_space_db.testcases 
         WHERE testcases.problemId = "${problemId}"`,
-        {
-          type: QueryTypes.SELECT,
-        }
-      );
-      const testCaseCount = numberOfTestcases[0]['numberOfTestcases'];
-      // problem.dataValues.maxUserPoint = maxUserPoint;
-      // problem.dataValues.testCaseCount = testCaseCount;
+          {
+            type: QueryTypes.SELECT,
+          }
+        );
+        const testCaseCount = numberOfTestcases[0]['numberOfTestcases'];
+        // problem.dataValues.maxUserPoint = maxUserPoint;
+        // problem.dataValues.testCaseCount = testCaseCount;
 
-      problem.dataValues.completed =
-        maxUserPoint !== 0 &&
-        maxUserPoint === testCaseCount * problem.pointPerTestCase;
+        problem.dataValues.completed =
+          maxUserPoint !== 0 &&
+          maxUserPoint === testCaseCount * problem.pointPerTestCase;
+      } else {
+        // If user is not student => set completed field to false
+        problem.dataValues.completed = false;
+      }
 
       delete problem.dataValues.pointPerTestCase;
     }
