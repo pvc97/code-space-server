@@ -172,6 +172,7 @@ const getProblemsCourse = async (req, res) => {
       order: [['createdAt', 'ASC']], // Order by created date from oldest to newest (ASC)
     });
 
+    // TODO: Get all problem with completed fields with one query
     for (const problem of problems) {
       const problemId = problem.id;
       const maxPointOfUser = await sequelize.query(
@@ -199,6 +200,8 @@ const getProblemsCourse = async (req, res) => {
       problem.dataValues.completed =
         maxUserPoint !== 0 &&
         maxUserPoint >= testCaseCount * problem.pointPerTestCase;
+
+      delete problem.dataValues.pointPerTestCase;
     }
 
     return res.status(200).send({ data: problems });
