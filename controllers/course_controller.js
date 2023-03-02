@@ -168,9 +168,38 @@ const getProblemsCourse = async (req, res) => {
       where: whereCondition,
       limit: limit,
       offset: offset,
-      attributes: ['id', 'name'],
+      attributes: ['id', 'name', 'pointPerTestCase'],
       order: [['createdAt', 'ASC']], // Order by created date from oldest to newest (ASC)
     });
+
+    for (const problem of problems) {
+      const problemId = problem.id;
+      const maxPointOfUser = await sequelize.query(
+        `SELECT COALESCE(MAX(submissions.totalPoint), 0) as maxPoint 
+        FROM code_space_db.submissions
+        WHERE submissions.problemId = "${problemId}" AND submissions.createdBy = "${userId}"`,
+        {
+          type: QueryTypes.SELECT,
+        }
+      );
+      const maxUserPoint = maxPointOfUser[0]['maxPoint'];
+
+      const numberOfTestcases = await sequelize.query(
+        `SELECT COUNT(*) as numberOfTestcases
+        FROM code_space_db.testcases 
+        WHERE testcases.problemId = "${problemId}" AND testcases.show = true`,
+        {
+          type: QueryTypes.SELECT,
+        }
+      );
+      const testCaseCount = numberOfTestcases[0]['numberOfTestcases'];
+      // problem.dataValues.maxUserPoint = maxUserPoint;
+      // problem.dataValues.testCaseCount = testCaseCount;
+
+      problem.dataValues.completed =
+        maxUserPoint !== 0 &&
+        maxUserPoint >= testCaseCount * problem.pointPerTestCase;
+    }
 
     return res.status(200).send({ data: problems });
   } catch (error) {
