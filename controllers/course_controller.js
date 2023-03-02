@@ -199,7 +199,7 @@ const getProblemsCourse = async (req, res) => {
 
       problem.dataValues.completed =
         maxUserPoint !== 0 &&
-        maxUserPoint >= testCaseCount * problem.pointPerTestCase;
+        maxUserPoint === testCaseCount * problem.pointPerTestCase;
 
       delete problem.dataValues.pointPerTestCase;
     }
