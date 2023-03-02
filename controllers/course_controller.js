@@ -188,7 +188,7 @@ const getProblemsCourse = async (req, res) => {
       const numberOfTestcases = await sequelize.query(
         `SELECT COUNT(*) as numberOfTestcases
         FROM code_space_db.testcases 
-        WHERE testcases.problemId = "${problemId}" AND testcases.show = true`,
+        WHERE testcases.problemId = "${problemId}"`,
         {
           type: QueryTypes.SELECT,
         }
@@ -199,7 +199,7 @@ const getProblemsCourse = async (req, res) => {
 
       problem.dataValues.completed =
         maxUserPoint !== 0 &&
-        maxUserPoint >= testCaseCount * problem.pointPerTestCase;
+        maxUserPoint === testCaseCount * problem.pointPerTestCase;
 
       delete problem.dataValues.pointPerTestCase;
     }
