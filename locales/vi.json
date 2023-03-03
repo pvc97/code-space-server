@@ -34,5 +34,6 @@
   "only_student_can_join_course": "Chỉ sinh viên mới được tham gia khóa học",
   "already_joined_course": "Bạn đã tham gia khóa học này",
   "invalid_access_code": "Mã truy cập không hợp lệ",
-  "required_role_type": "Chức vụ không được để trống"
+  "required_role_type": "Chức vụ không được để trống",
+  "user_not_found": "Không tìm thấy người dùng"
 }

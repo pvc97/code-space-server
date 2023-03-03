@@ -17,6 +17,12 @@ const getUserInfo = async (req, res) => {
       },
     });
 
+    if (!user) {
+      return res
+        .status(404)
+        .send({ error: translate('user_not_found', req.hl) });
+    }
+
     res.status(200).send({ data: user });
   } catch (error) {
     console.log(error);
@@ -24,13 +30,20 @@ const getUserInfo = async (req, res) => {
   }
 };
 
-const getAllTeachers = async (req, res) => {
+const getAllUsers = async (req, res) => {
+  // TODO: Handle pagination
+  // When get all teacher for create course, we don't need pagination
+  // => Add query param to enable/disable pagination
   try {
+    const roleType = req.query.roleType;
+    const whereCondition = { active: true };
+
+    if (roleType) {
+      whereCondition.roleType = roleType;
+    }
+
     const teachers = await User.findAll({
-      where: {
-        active: true,
-        roleType: Role.Teacher,
-      },
+      where: whereCondition,
       attributes: ['id', 'name', 'email'],
     });
 
@@ -101,5 +114,5 @@ const createUser = async (req, res) => {
 module.exports = {
   createUser,
   getUserInfo,
-  getAllTeachers,
+  getAllUsers,
 };
