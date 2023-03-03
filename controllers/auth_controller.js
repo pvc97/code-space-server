@@ -104,7 +104,7 @@ const login = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(401).send({
+      return res.status(403).send({
         error: translate('login_invalid_username_or_password', req.hl),
       });
     }
@@ -112,7 +112,7 @@ const login = async (req, res) => {
     const isValidPassword = await bcryptjs.compare(password, user.password);
 
     if (!isValidPassword) {
-      return res.status(401).send({
+      return res.status(403).send({
         error: translate('login_invalid_username_or_password', req.hl),
       });
     }
@@ -179,7 +179,7 @@ const logoutAll = async (req, res) => {
 
     if (!refreshToken) {
       return res
-        .status(401)
+        .status(403)
         .send({ error: translate('token_required', req.hl) });
     }
 
@@ -235,7 +235,7 @@ const refreshToken = async (req, res) => {
     // If refresh token is not found in the database
     if (!refreshToken) {
       return res
-        .status(403)
+        .status(401)
         .send({ error: translate('invalid_token', req.hl) });
     } else {
       // Delete the refresh token from the database

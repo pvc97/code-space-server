@@ -34,6 +34,11 @@ const authenticate = (req, res, next) => {
       error instanceof jwt.JsonWebTokenError ||
       error instanceof SyntaxError
     ) {
+      // Token can invalid in case user clear app data
+      // => access token is empty
+      // => return 401 code to force user call refresh token
+      // with empty refresh token => refresh failed
+      // => User will be logged out
       return res
         .status(401)
         .send({ error: translate('invalid_token', req.hl) });
