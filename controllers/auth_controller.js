@@ -40,21 +40,13 @@ const register = async (req, res) => {
     const hashedPassword = await bcryptjs.hash(password, 10);
 
     // Register can only create student account
-    const roleId = (await Role.findOne({ where: { type: Role.Student } }))
-      .dataValues.id;
-
     const user = await User.create({
       username,
       name,
       email,
       password: hashedPassword,
-      roleId,
+      roleType: Role.Student,
     });
-
-    // Add roleType to user object and remove role object
-    user.dataValues.roleType = Role.Student;
-    // delete user.dataValues.role;
-    delete user.dataValues.roleId;
 
     const accessToken = generateAccessToken(user.dataValues);
     const refreshToken = generateRefreshToken(user.dataValues);
@@ -102,7 +94,6 @@ const login = async (req, res) => {
 
     const user = await User.scope(User.withPassword).findOne({
       where: { username },
-      include: ['role'],
     });
 
     if (!user) {
@@ -110,10 +101,6 @@ const login = async (req, res) => {
         error: translate('login_invalid_username_or_password', req.hl),
       });
     }
-
-    // Add roleType to user object and remove role object
-    user.dataValues.roleType = user.role.type;
-    delete user.dataValues.role;
 
     const isValidPassword = await bcryptjs.compare(password, user.password);
 
@@ -229,19 +216,7 @@ const refreshToken = async (req, res) => {
       });
     }
 
-    const user = await User.findByPk(decodedRefreshToken.id, {
-      include: [
-        {
-          model: Role,
-          as: 'role',
-          attributes: ['type'],
-        },
-      ],
-    });
-
-    // Add roleType to user object and remove role object
-    user.dataValues.roleType = user.role.type;
-    delete user.dataValues.role;
+    const user = await User.findByPk(decodedRefreshToken.id);
 
     const accessToken = generateAccessToken(user.dataValues);
     const newRefreshToken = generateRefreshToken(user.dataValues);

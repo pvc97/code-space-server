@@ -26,12 +26,12 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      roleId: {
-        type: Sequelize.UUID,
+      roleType: {
+        type: Sequelize.ENUM('manager', 'student', 'teacher'),
         allowNull: false,
         references: {
           model: 'roles',
-          key: 'id',
+          key: 'roleType',
         },
       },
       active: {

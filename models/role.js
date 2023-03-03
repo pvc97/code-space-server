@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate({ User }) {
-      Role.hasMany(User, { foreignKey: 'roleId', as: 'users' });
+      Role.hasMany(User, { foreignKey: 'roleType', as: 'users' });
     }
   }
 
@@ -19,17 +19,11 @@ module.exports = (sequelize, DataTypes) => {
 
   Role.init(
     {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+      roleType: {
         primaryKey: true,
-        onDelete: 'CASCADE',
-      },
-      type: {
         type: DataTypes.ENUM,
-        allowNull: false,
         values: [Role.Manager, Role.Student, Role.Teacher],
-        unique: true,
+        defaultValue: Role.Student,
       },
     },
     {
