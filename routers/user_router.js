@@ -10,7 +10,7 @@ const { Role } = require('../models');
 
 const userRouter = express.Router();
 
-userRouter.get('/user-info', authenticate, getUserInfo);
+userRouter.get('/:id', authenticate, getUserInfo);
 
 userRouter.get(
   '/teachers',

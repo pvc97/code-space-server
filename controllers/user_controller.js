@@ -6,8 +6,16 @@ const translate = require('../utils/translate');
 
 const getUserInfo = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const user = await User.findByPk(userId);
+    const { id } = req.params;
+    const user = await User.findOne({
+      where: {
+        id,
+        active: true,
+      },
+      attributes: {
+        exclude: ['password', 'createdAt', 'updatedAt'],
+      },
+    });
 
     res.status(200).send({ data: user });
   } catch (error) {
