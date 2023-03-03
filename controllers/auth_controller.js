@@ -48,6 +48,10 @@ const register = async (req, res) => {
       roleType: Role.Student,
     });
 
+    // Remove createdAt and updatedAt
+    delete user.dataValues.createdAt;
+    delete user.dataValues.updatedAt;
+
     const accessToken = generateAccessToken(user.dataValues);
     const refreshToken = generateRefreshToken(user.dataValues);
 
@@ -94,6 +98,9 @@ const login = async (req, res) => {
 
     const user = await User.scope(User.withPassword).findOne({
       where: { username },
+      attributes: {
+        exclude: ['createdAt', 'updatedAt'],
+      },
     });
 
     if (!user) {
@@ -148,7 +155,18 @@ const logout = async (req, res) => {
     res.sendStatus(204);
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error: translate('internal_server_error', req.hl) });
+    if (
+      error instanceof jwt.JsonWebTokenError ||
+      error instanceof SyntaxError
+    ) {
+      return res
+        .status(401)
+        .send({ error: translate('invalid_token', req.hl) });
+    }
+
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
   }
 };
 
@@ -176,7 +194,19 @@ const logoutAll = async (req, res) => {
     res.sendStatus(204);
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error: translate('internal_server_error', req.hl) });
+    if (
+      error instanceof jwt.JsonWebTokenError ||
+      error instanceof SyntaxError
+    ) {
+      console.log(error);
+      return res
+        .status(401)
+        .send({ error: translate('invalid_token', req.hl) });
+    }
+
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
   }
 };
 
@@ -216,7 +246,14 @@ const refreshToken = async (req, res) => {
       });
     }
 
-    const user = await User.findByPk(decodedRefreshToken.id);
+    const user = await User.findOne({
+      where: {
+        id: decodedRefreshToken.id,
+      },
+      attributes: {
+        exclude: ['createdAt', 'updatedAt'],
+      },
+    });
 
     const accessToken = generateAccessToken(user.dataValues);
     const newRefreshToken = generateRefreshToken(user.dataValues);
