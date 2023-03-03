@@ -8,11 +8,9 @@ const {
   refreshToken,
 } = require('../controllers/auth_controller');
 
-const { registerRequire } = require('../middlewares/require/register_require');
-
 const authRouter = express.Router();
 
-authRouter.post('/register', registerRequire, register);
+authRouter.post('/register', register);
 authRouter.post('/login', login);
 authRouter.post('/logout', logout);
 authRouter.post('/logout-all', logoutAll);
