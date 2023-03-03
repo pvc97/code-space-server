@@ -11,16 +11,13 @@ module.exports = {
       'roles',
       [
         {
-          id: uuidv4(),
-          type: Role.Manager,
+          roleType: Role.Manager,
         },
         {
-          id: uuidv4(),
-          type: Role.Student,
+          roleType: Role.Student,
         },
         {
-          id: uuidv4(),
-          type: Role.Teacher,
+          roleType: Role.Teacher,
         },
       ],
       {}

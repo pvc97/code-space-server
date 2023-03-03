@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       Submission,
     }) {
       User.belongsTo(Role, {
-        foreignKey: 'roleId',
+        foreignKey: 'roleType',
         as: 'role',
       });
       User.hasMany(RefreshToken, { foreignKey: 'userId', as: 'refreshTokens' });
@@ -58,12 +58,12 @@ module.exports = (sequelize, DataTypes) => {
       // User.belongsTo automatically creates a foreign key
       // so we don't need to define it here
 
-      // roleId: {
-      //   type: DataTypes.UUID,
+      // roleType: {
+      //   type: DataTypes.ENUM,
       //   allowNull: false,
       //   references: {
       //     model: 'roles',
-      //     key: 'id',
+      //     key: 'roleType',
       //   },
       // },
       active: {
@@ -76,12 +76,10 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: 'User',
       scopes: {
-        withPassword: {
-          attributes: { exclude: ['roleId'] },
-        },
+        withPassword: {},
       },
       defaultScope: {
-        attributes: { exclude: ['roleId', 'password'] },
+        attributes: { exclude: ['password'] },
       },
     }
   );

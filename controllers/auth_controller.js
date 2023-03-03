@@ -40,21 +40,17 @@ const register = async (req, res) => {
     const hashedPassword = await bcryptjs.hash(password, 10);
 
     // Register can only create student account
-    const roleId = (await Role.findOne({ where: { type: Role.Student } }))
-      .dataValues.id;
-
     const user = await User.create({
       username,
       name,
       email,
       password: hashedPassword,
-      roleId,
+      roleType: Role.Student,
     });
 
-    // Add roleType to user object and remove role object
-    user.dataValues.roleType = Role.Student;
-    // delete user.dataValues.role;
-    delete user.dataValues.roleId;
+    // Remove createdAt and updatedAt
+    delete user.dataValues.createdAt;
+    delete user.dataValues.updatedAt;
 
     const accessToken = generateAccessToken(user.dataValues);
     const refreshToken = generateRefreshToken(user.dataValues);
@@ -102,23 +98,21 @@ const login = async (req, res) => {
 
     const user = await User.scope(User.withPassword).findOne({
       where: { username },
-      include: ['role'],
+      attributes: {
+        exclude: ['createdAt', 'updatedAt'],
+      },
     });
 
     if (!user) {
-      return res.status(401).send({
+      return res.status(403).send({
         error: translate('login_invalid_username_or_password', req.hl),
       });
     }
 
-    // Add roleType to user object and remove role object
-    user.dataValues.roleType = user.role.type;
-    delete user.dataValues.role;
-
     const isValidPassword = await bcryptjs.compare(password, user.password);
 
     if (!isValidPassword) {
-      return res.status(401).send({
+      return res.status(403).send({
         error: translate('login_invalid_username_or_password', req.hl),
       });
     }
@@ -161,7 +155,18 @@ const logout = async (req, res) => {
     res.sendStatus(204);
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error: translate('internal_server_error', req.hl) });
+    if (
+      error instanceof jwt.JsonWebTokenError ||
+      error instanceof SyntaxError
+    ) {
+      return res
+        .status(401)
+        .send({ error: translate('invalid_token', req.hl) });
+    }
+
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
   }
 };
 
@@ -174,7 +179,7 @@ const logoutAll = async (req, res) => {
 
     if (!refreshToken) {
       return res
-        .status(401)
+        .status(403)
         .send({ error: translate('token_required', req.hl) });
     }
 
@@ -189,7 +194,19 @@ const logoutAll = async (req, res) => {
     res.sendStatus(204);
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error: translate('internal_server_error', req.hl) });
+    if (
+      error instanceof jwt.JsonWebTokenError ||
+      error instanceof SyntaxError
+    ) {
+      console.log(error);
+      return res
+        .status(401)
+        .send({ error: translate('invalid_token', req.hl) });
+    }
+
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
   }
 };
 
@@ -218,7 +235,7 @@ const refreshToken = async (req, res) => {
     // If refresh token is not found in the database
     if (!refreshToken) {
       return res
-        .status(403)
+        .status(401)
         .send({ error: translate('invalid_token', req.hl) });
     } else {
       // Delete the refresh token from the database
@@ -229,19 +246,14 @@ const refreshToken = async (req, res) => {
       });
     }
 
-    const user = await User.findByPk(decodedRefreshToken.id, {
-      include: [
-        {
-          model: Role,
-          as: 'role',
-          attributes: ['type'],
-        },
-      ],
+    const user = await User.findOne({
+      where: {
+        id: decodedRefreshToken.id,
+      },
+      attributes: {
+        exclude: ['createdAt', 'updatedAt'],
+      },
     });
-
-    // Add roleType to user object and remove role object
-    user.dataValues.roleType = user.role.type;
-    delete user.dataValues.role;
 
     const accessToken = generateAccessToken(user.dataValues);
     const newRefreshToken = generateRefreshToken(user.dataValues);

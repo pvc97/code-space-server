@@ -1,18 +1,13 @@
 'use strict';
 
 const { v4: uuidv4 } = require('uuid');
+const { Role } = require('../models');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    const studentRole = await queryInterface.sequelize.query(
-      `SELECT * FROM roles WHERE type = 'student' LIMIT 1`
-    );
-
-    const firstStudentRoleId = studentRole[0][0].id;
-
     const student = await queryInterface.sequelize.query(
-      `SELECT * FROM users WHERE roleId = '${firstStudentRoleId}' LIMIT 1`
+      `SELECT * FROM users WHERE roleType = '${Role.Student}' LIMIT 1`
     );
     const studentId = student[0][0].id;
 

@@ -33,5 +33,7 @@
   "invalid_teacher_id": "Invalid teacher id",
   "only_student_can_join_course": "Only student can join course",
   "already_joined_course": "Already joined course",
-  "invalid_access_code": "Invalid access code"
+  "invalid_access_code": "Invalid access code",
+  "required_role_type": "Required role type",
+  "user_not_found": "User not found"
 }
