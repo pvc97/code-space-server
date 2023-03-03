@@ -10,13 +10,37 @@ const {
 const { convertTimeStampToDate } = require('../utils/date_time');
 
 const register = async (req, res) => {
-  console.log('register');
   try {
-    const { username, name, email, password, roleType } = req.body;
+    const { username, name, email, password } = req.body;
+
+    if (!username) {
+      return res
+        .status(400)
+        .send({ error: translate('required_username', req.hl) });
+    }
+
+    if (!name) {
+      return res
+        .status(400)
+        .send({ error: translate('required_name', req.hl) });
+    }
+
+    if (!email) {
+      return res
+        .status(400)
+        .send({ error: translate('required_email', req.hl) });
+    }
+
+    if (!password) {
+      return res
+        .status(400)
+        .send({ error: translate('required_password', req.hl) });
+    }
 
     const hashedPassword = await bcryptjs.hash(password, 10);
 
-    const roleId = (await Role.findOne({ where: { type: roleType } }))
+    // Register can only create student account
+    const roleId = (await Role.findOne({ where: { type: Role.Student } }))
       .dataValues.id;
 
     const user = await User.create({
@@ -28,8 +52,8 @@ const register = async (req, res) => {
     });
 
     // Add roleType to user object and remove role object
-    user.dataValues.roleType = roleType;
-    delete user.dataValues.role;
+    user.dataValues.roleType = Role.Student;
+    // delete user.dataValues.role;
     delete user.dataValues.roleId;
 
     const accessToken = generateAccessToken(user.dataValues);
@@ -49,6 +73,7 @@ const register = async (req, res) => {
 
     res.status(201).send({ data: { accessToken, refreshToken } });
   } catch (error) {
+    console.log(error);
     if (error.name === 'SequelizeUniqueConstraintError') {
       return res.status(409).send({
         error: translate('register_username_or_email_already_exists', req.hl),
