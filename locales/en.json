@@ -35,5 +35,6 @@
   "already_joined_course": "Already joined course",
   "invalid_access_code": "Invalid access code",
   "required_role_type": "Required role type",
-  "user_not_found": "User not found"
+  "user_not_found": "User not found",
+  "invalid_user_id": "Invalid user id"
 }

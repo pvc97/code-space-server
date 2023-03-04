@@ -35,5 +35,6 @@
   "already_joined_course": "Bạn đã tham gia khóa học này",
   "invalid_access_code": "Mã truy cập không hợp lệ",
   "required_role_type": "Chức vụ không được để trống",
-  "user_not_found": "Không tìm thấy người dùng"
+  "user_not_found": "Không tìm thấy người dùng",
+  "invalid_user_id": "Mã người dùng không hợp lệ"
 }
