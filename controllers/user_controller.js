@@ -160,7 +160,7 @@ const deleteUser = async (req, res) => {
 
 // Update user info
 // Manager can update all user info
-// Or user can update his/her own info
+// Or user can update their own info
 const updateUser = async (req, res) => {
   try {
     const userIdToUpdate = req.params.id;
@@ -224,10 +224,71 @@ const updateUser = async (req, res) => {
   }
 };
 
+// Only current user can change their password
+const changePassword = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword) {
+      return res
+        .status(400)
+        .send({ error: translate('required_old_password', req.hl) });
+    }
+
+    if (!newPassword) {
+      return res
+        .status(400)
+        .send({ error: translate('required_new_password', req.hl) });
+    }
+
+    if (oldPassword === newPassword) {
+      return res
+        .status(400)
+        .send({ error: translate('new_password_same_as_old', req.hl) });
+    }
+
+    const user = await User.scope(User.withPassword).findOne({
+      where: { id: userId, active: true },
+      attributes: ['id', 'password'],
+    });
+
+    if (!user) {
+      return res.status(403).send({
+        error: translate('invalid_user_id', req.hl),
+      });
+    }
+
+    const isValidPassword = await bcryptjs.compare(oldPassword, user.password);
+
+    if (!isValidPassword) {
+      return res.status(403).send({
+        error: translate('invalid_old_password', req.hl),
+      });
+    }
+
+    const hashedPassword = await bcryptjs.hash(newPassword, 10);
+
+    await user.update({ password: hashedPassword });
+
+    return res.status(200).send({
+      data: {
+        id: user.id,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
   createUser,
   deleteUser,
   updateUser,
   getUserInfo,
   getAllUsers,
+  changePassword,
 };
