@@ -7,6 +7,7 @@ const {
   updateUser,
   getUserInfo,
   getAllUsers,
+  resetPassword,
   changePassword,
 } = require('../controllers/user_controller');
 const { Role } = require('../models');
@@ -24,6 +25,13 @@ userRouter.delete('/:id', authenticate, authorize([Role.Manager]), deleteUser);
 userRouter.put('/:id', authenticate, updateUser);
 
 userRouter.post('/change-password', authenticate, changePassword);
+
+userRouter.post(
+  '/reset-password',
+  authenticate,
+  authorize([Role.Manager]),
+  resetPassword
+);
 
 module.exports = {
   userRouter,

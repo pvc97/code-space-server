@@ -284,11 +284,58 @@ const changePassword = async (req, res) => {
   }
 };
 
+// Only manager can reset user password
+// Manager can reset user password without knowing old password
+const resetPassword = async (req, res) => {
+  try {
+    const { userId, newPassword } = req.body;
+
+    if (!userId) {
+      return res
+        .status(400)
+        .send({ error: translate('required_user_id', req.hl) });
+    }
+
+    if (!newPassword) {
+      return res
+        .status(400)
+        .send({ error: translate('required_new_password', req.hl) });
+    }
+
+    const user = await User.scope(User.withPassword).findOne({
+      where: { id: userId, active: true },
+      attributes: ['id', 'password'],
+    });
+
+    if (!user) {
+      return res.status(403).send({
+        error: translate('invalid_user_id', req.hl),
+      });
+    }
+
+    const hashedPassword = await bcryptjs.hash(newPassword, 10);
+
+    await user.update({ password: hashedPassword });
+
+    return res.status(200).send({
+      data: {
+        id: user.id,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
   createUser,
   deleteUser,
   updateUser,
   getUserInfo,
   getAllUsers,
+  resetPassword,
   changePassword,
 };

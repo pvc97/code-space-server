@@ -39,6 +39,7 @@
   "invalid_user_id": "Invalid user id",
   "required_old_password": "Required old password",
   "required_new_password": "Required new password",
+  "required_user_id": "Required user id",
   "invalid_old_password": "Invalid old password",
   "new_password_same_as_old": "New password same as old"
 }

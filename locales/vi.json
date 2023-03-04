@@ -39,6 +39,7 @@
   "invalid_user_id": "Mã người dùng không hợp lệ",
   "required_old_password": "Mật khẩu cũ không được để trống",
   "required_new_password": "Mật khẩu mới không được để trống",
+  "required_user_id": "Mã người dùng không được để trống",
   "invalid_old_password": "Mật khẩu cũ không đúng",
   "new_password_same_as_old": "Mật khẩu mới không được giống mật khẩu cũ"
 }
