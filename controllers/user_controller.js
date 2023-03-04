@@ -32,16 +32,15 @@ const getUserInfo = async (req, res) => {
 };
 
 const getAllUsers = async (req, res) => {
-  // TODO: Handle pagination
-  // When get all teacher for create course, we don't need pagination
-  // => Add query param to enable/disable pagination
   try {
     const roleType = req.query.roleType;
 
-    const limit = req.query.limit * 1 || DEFAULT_LIMIT;
+    let limit = req.query.limit * 1 || DEFAULT_LIMIT;
     const page = req.query.page * 1 || DEFAULT_PAGE;
-    const offset = (page - 1) * limit;
+    let offset = (page - 1) * limit;
     const q = req.query.q;
+    const all = req.query.all; // Get all users without pagination
+
     const whereCondition = { active: true };
 
     if (roleType) {
@@ -52,6 +51,11 @@ const getAllUsers = async (req, res) => {
       whereCondition.name = {
         [Op.like]: `%${q}%`,
       };
+    }
+
+    if (all === 'true') {
+      limit = null;
+      offset = null;
     }
 
     const users = await User.findAll({
