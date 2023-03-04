@@ -4,6 +4,7 @@ const { authorize } = require('../middlewares/auth/authorize');
 const {
   createUser,
   deleteUser,
+  updateUser,
   getUserInfo,
   getAllUsers,
 } = require('../controllers/user_controller');
@@ -18,6 +19,8 @@ userRouter.get('/', authenticate, authorize([Role.Manager]), getAllUsers);
 userRouter.post('/', authenticate, authorize([Role.Manager]), createUser);
 
 userRouter.delete('/:id', authenticate, authorize([Role.Manager]), deleteUser);
+
+userRouter.put('/:id', authenticate, updateUser);
 
 module.exports = {
   userRouter,

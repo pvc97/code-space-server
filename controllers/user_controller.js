@@ -1,7 +1,7 @@
 'use strict';
 
 const bcryptjs = require('bcryptjs');
-const { User, sequelize } = require('../models');
+const { User, Role, sequelize } = require('../models');
 const translate = require('../utils/translate');
 const { DEFAULT_LIMIT, DEFAULT_PAGE } = require('../constants/constants');
 
@@ -158,9 +158,76 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// Update user info
+// Manager can update all user info
+// Or user can update his/her own info
+const updateUser = async (req, res) => {
+  try {
+    const userIdToUpdate = req.params.id;
+    const roleType = req.user.roleType;
+    const currentUserId = req.user.id;
+
+    const { name, email } = req.body;
+
+    let canUpdate = false;
+
+    if (canUpdate === false && roleType === Role.Manager) {
+      canUpdate = true;
+    }
+
+    if (canUpdate === false && currentUserId === userIdToUpdate) {
+      canUpdate = true;
+    }
+
+    if (canUpdate === false) {
+      return res
+        .status(403)
+        .send({ error: translate('permission_denied', req.hl) });
+    }
+
+    const user = await User.findOne({
+      where: { id: userIdToUpdate, active: true },
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .send({ error: translate('invalid_user_id', req.hl) });
+    }
+
+    if (name) {
+      user.name = name;
+    }
+
+    if (email) {
+      user.email = email;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      data: {
+        id: user.id,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(409).send({
+        error: translate('duplicate_course_code', req.hl),
+      });
+    }
+
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
   createUser,
   deleteUser,
+  updateUser,
   getUserInfo,
   getAllUsers,
 };
