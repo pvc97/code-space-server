@@ -161,6 +161,8 @@ const deleteUser = async (req, res) => {
 // Update user info
 // Manager can update all user info
 // Or user can update their own info
+// If update success, return updated user info instead of userId
+// Because FE need to save new user info to local storage
 const updateUser = async (req, res) => {
   try {
     const userIdToUpdate = req.params.id;
@@ -206,9 +208,7 @@ const updateUser = async (req, res) => {
     await user.save();
 
     res.status(200).json({
-      data: {
-        id: user.id,
-      },
+      data: user,
     });
   } catch (error) {
     console.log(error);
