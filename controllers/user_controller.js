@@ -1,8 +1,9 @@
 'use strict';
 
 const bcryptjs = require('bcryptjs');
-const { User, Role } = require('../models');
+const { User, sequelize } = require('../models');
 const translate = require('../utils/translate');
+const { DEFAULT_LIMIT, DEFAULT_PAGE } = require('../constants/constants');
 
 const getUserInfo = async (req, res) => {
   try {
@@ -36,18 +37,33 @@ const getAllUsers = async (req, res) => {
   // => Add query param to enable/disable pagination
   try {
     const roleType = req.query.roleType;
+
+    const limit = req.query.limit * 1 || DEFAULT_LIMIT;
+    const page = req.query.page * 1 || DEFAULT_PAGE;
+    const offset = (page - 1) * limit;
+    const q = req.query.q;
     const whereCondition = { active: true };
 
     if (roleType) {
       whereCondition.roleType = roleType;
     }
 
-    const teachers = await User.findAll({
+    if (q) {
+      whereCondition.name = {
+        [Op.like]: `%${q}%`,
+      };
+    }
+
+    const users = await User.findAll({
       where: whereCondition,
       attributes: ['id', 'name', 'email'],
+      limit: limit,
+      offset: offset,
+      order: [[sequelize.literal("SUBSTRING_INDEX(name, ' ', -1)"), 'ASC']],
+      // Order by last name in vietnamese
     });
 
-    res.status(200).send({ data: teachers });
+    res.status(200).send({ data: users });
   } catch (error) {
     console.log(error);
     res.status(500).send({ error: translate('internal_server_error', req.hl) });
