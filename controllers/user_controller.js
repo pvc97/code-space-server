@@ -60,7 +60,7 @@ const getAllUsers = async (req, res) => {
 
     const users = await User.findAll({
       where: whereCondition,
-      attributes: ['id', 'name', 'email'],
+      attributes: ['id', 'username', 'name', 'email', 'roleType'],
       limit: limit,
       offset: offset,
       order: [[sequelize.literal("SUBSTRING_INDEX(name, ' ', -1)"), 'ASC']],
