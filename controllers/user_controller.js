@@ -55,6 +55,7 @@ const getAllUsers = async (req, res) => {
         [Op.or]: [
           { name: { [Op.like]: `%${q}%` } },
           { username: { [Op.like]: `%${q}%` } },
+          { email: { [Op.like]: `%${q}%` } },
         ],
       };
     }
