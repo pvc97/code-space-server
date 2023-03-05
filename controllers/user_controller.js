@@ -1,6 +1,7 @@
 'use strict';
 
 const bcryptjs = require('bcryptjs');
+const { Op } = require('sequelize');
 const { User, Role, sequelize } = require('../models');
 const translate = require('../utils/translate');
 const { DEFAULT_LIMIT, DEFAULT_PAGE } = require('../constants/constants');
@@ -41,15 +42,20 @@ const getAllUsers = async (req, res) => {
     const q = req.query.q;
     const all = req.query.all; // Get all users without pagination
 
-    const whereCondition = { active: true };
+    let whereCondition = { active: true };
 
     if (roleType) {
       whereCondition.roleType = roleType;
     }
 
     if (q) {
-      whereCondition.name = {
-        [Op.like]: `%${q}%`,
+      // Search by name or username
+      whereCondition = {
+        ...whereCondition,
+        [Op.or]: [
+          { name: { [Op.like]: `%${q}%` } },
+          { username: { [Op.like]: `%${q}%` } },
+        ],
       };
     }
 
