@@ -1,6 +1,7 @@
 'use strict';
 
 const bcryptjs = require('bcryptjs');
+const { Op } = require('sequelize');
 const { User, Role, sequelize } = require('../models');
 const translate = require('../utils/translate');
 const { DEFAULT_LIMIT, DEFAULT_PAGE } = require('../constants/constants');
