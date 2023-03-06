@@ -1,7 +1,7 @@
 {
   "login_invalid_username_or_password": "Sai tên đăng nhập hoặc mật khẩu",
   "internal_server_error": "Lỗi máy chủ",
-  "invalid_token": "Token không hợp lệ",
+  "invalid_token": "Phiên đăng nhập đã hết hạn",
   "token_expired": "Phiên đã hết hạn",
   "token_required": "Thiếu Token",
   "required_password": "Mật khẩu không được để trống",
