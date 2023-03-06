@@ -2,7 +2,7 @@
   "login_invalid_username_or_password": "Invalid username or password",
   "internal_server_error": "Internal server error",
   "invalid_token": "Invalid token",
-  "token_expired": "Token expired",
+  "token_expired": "Session expired",
   "token_required": "Token required",
   "required_password": "Required password",
   "required_username": "Required username",
