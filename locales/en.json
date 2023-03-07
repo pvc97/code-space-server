@@ -41,5 +41,6 @@
   "required_new_password": "Required new password",
   "required_user_id": "Required user id",
   "invalid_old_password": "Invalid old password",
-  "new_password_same_as_old": "New password same as old"
+  "new_password_same_as_old": "New password same as old",
+  "email_already_exists": "Email already exists"
 }

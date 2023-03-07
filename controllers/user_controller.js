@@ -221,7 +221,7 @@ const updateUser = async (req, res) => {
     console.log(error);
     if (error.name === 'SequelizeUniqueConstraintError') {
       return res.status(409).send({
-        error: translate('duplicate_course_code', req.hl),
+        error: translate('email_already_exists', req.hl),
       });
     }
 
