@@ -4,7 +4,11 @@ const bcryptjs = require('bcryptjs');
 const { Op } = require('sequelize');
 const { User, Role, sequelize } = require('../models');
 const translate = require('../utils/translate');
-const { DEFAULT_LIMIT, DEFAULT_PAGE } = require('../constants/constants');
+const {
+  DEFAULT_LIMIT,
+  DEFAULT_PAGE,
+  PASSWORD_SALT_LENGTH,
+} = require('../constants/constants');
 
 const getUserInfo = async (req, res) => {
   try {
@@ -115,7 +119,7 @@ const createUser = async (req, res) => {
         .send({ error: translate('required_role_type', req.hl) });
     }
 
-    const hashedPassword = await bcryptjs.hash(password, 10);
+    const hashedPassword = await bcryptjs.hash(password, PASSWORD_SALT_LENGTH);
 
     // Register can only create student account
     const user = await User.create({
@@ -274,7 +278,10 @@ const changePassword = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcryptjs.hash(newPassword, 10);
+    const hashedPassword = await bcryptjs.hash(
+      newPassword,
+      PASSWORD_SALT_LENGTH
+    );
 
     await user.update({ password: hashedPassword });
 
@@ -320,7 +327,10 @@ const resetPassword = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcryptjs.hash(newPassword, 10);
+    const hashedPassword = await bcryptjs.hash(
+      newPassword,
+      PASSWORD_SALT_LENGTH
+    );
 
     await user.update({ password: hashedPassword });
 
