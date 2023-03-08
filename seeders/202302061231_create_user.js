@@ -2,13 +2,13 @@
 
 const bcryptjs = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
-const { Role } = require('../models');
+const { PASSWORD_SALT_LENGTH } = require('../constants/constants');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     console.log('Seeding users...');
-    const hashedPassword = await bcryptjs.hash('123456', 10);
+    const hashedPassword = await bcryptjs.hash('123456', PASSWORD_SALT_LENGTH);
 
     await queryInterface.bulkInsert(
       'users',
