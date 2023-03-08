@@ -158,6 +158,13 @@ const deleteUser = async (req, res) => {
         .send({ error: translate('invalid_user_id', req.hl) });
     }
 
+    // Manager can not delete themselves or other managers
+    if (user.roleType === Role.Manager) {
+      return res
+        .status(403)
+        .send({ error: translate('permission_denied', req.hl) });
+    }
+
     await user.update({ active: false });
 
     return res.status(200).send({ data: translate('delete_success', req.hl) });
@@ -184,6 +191,7 @@ const updateUser = async (req, res) => {
 
     let canUpdate = false;
 
+    // Manager can update all user info except other managers
     if (canUpdate === false && roleType === Role.Manager) {
       canUpdate = true;
     }
@@ -200,12 +208,20 @@ const updateUser = async (req, res) => {
 
     const user = await User.findOne({
       where: { id: userIdToUpdate, active: true },
+      attributes: ['id', 'username', 'name', 'email', 'roleType'],
     });
 
     if (!user) {
       return res
         .status(400)
         .send({ error: translate('invalid_user_id', req.hl) });
+    }
+
+    // Check if manager is trying to update other manager or not
+    if (user.id !== currentUserId && user.roleType === Role.Manager) {
+      return res
+        .status(403)
+        .send({ error: translate('permission_denied', req.hl) });
     }
 
     if (name) {
@@ -318,13 +334,20 @@ const resetPassword = async (req, res) => {
 
     const user = await User.scope(User.withPassword).findOne({
       where: { id: userId, active: true },
-      attributes: ['id', 'password'],
+      attributes: ['id', 'password', 'roleType'],
     });
 
     if (!user) {
       return res.status(403).send({
         error: translate('invalid_user_id', req.hl),
       });
+    }
+
+    // Manager can't reset password for managers including themselves
+    if (user.roleType === Role.Manager) {
+      return res
+        .status(403)
+        .send({ error: translate('permission_denied', req.hl) });
     }
 
     const hashedPassword = await bcryptjs.hash(
