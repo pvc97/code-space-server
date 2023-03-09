@@ -546,9 +546,9 @@ const getRanking = async (req, res) => {
       (SELECT users.name, MAX(submissions.totalPoint) as best
       FROM users
       INNER JOIN studentcourses
-      ON users.id = studentcourses.studentId AND studentcourses.courseId = "${courseId}"
+      ON users.id = studentcourses.studentId AND users.active = true AND studentcourses.courseId = "${courseId}"
       INNER JOIN problems
-      ON studentcourses.courseId = problems.courseId
+      ON studentcourses.courseId = problems.courseId AND problems.active = true
       LEFT JOIN submissions
       ON submissions.createdBy = users.id AND submissions.problemId = problems.id
       GROUP BY users.id, problems.id) as bests
