@@ -28,6 +28,10 @@ const sendNotification = async (req, res) => {
     ],
   };
 
+  // If I want to send a message to a single device,
+  // In the message payload, I should use token instead of tokens
+  // then use send() method instead of sendMulticast()
+
   try {
     // Note: A multicast message containing up to 500 tokens.
     // How to split tokens into multiple requests?
