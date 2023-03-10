@@ -131,3 +131,6 @@ dist
 
 # public folder
 /public
+
+# firebase
+fb_fcm_key.json
