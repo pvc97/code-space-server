@@ -5,6 +5,10 @@ const serviceAccount = require('../config/fb_fcm_key.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
+  // databaseURL: 'https://XXXX.firebaseio.com',
+  // databaseURL property is for the Firebase Realtime Database,
+  // it is an optional configuration option,
+  // and is only required if I need to access the Firebase Realtime Database
 });
 
 const sendNotification = async (req, res) => {
