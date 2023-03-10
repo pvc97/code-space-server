@@ -80,13 +80,16 @@ const createProblem = async (req, res) => {
 
     // Create problem with test cases
     const problem = await sequelize.transaction(async (transaction) => {
-      const problemResult = await Problem.create({
-        name,
-        pdfPath,
-        pointPerTestCase,
-        courseId,
-        languageId,
-      });
+      const problemResult = await Problem.create(
+        {
+          name,
+          pdfPath,
+          pointPerTestCase,
+          courseId,
+          languageId,
+        },
+        { transaction }
+      );
 
       const testCasesResult = testCases.map((testCase) => ({
         ...testCase,
