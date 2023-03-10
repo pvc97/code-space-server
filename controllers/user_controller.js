@@ -2,7 +2,7 @@
 
 const bcryptjs = require('bcryptjs');
 const { Op } = require('sequelize');
-const { User, Role, sequelize } = require('../models');
+const { User, Role, Course, sequelize } = require('../models');
 const translate = require('../utils/translate');
 const {
   DEFAULT_LIMIT,
@@ -165,7 +165,23 @@ const deleteUser = async (req, res) => {
         .send({ error: translate('permission_denied', req.hl) });
     }
 
-    await user.update({ active: false });
+    // Have to put all transaction to each query to able to rollback
+    await sequelize.transaction(async (transaction) => {
+      await user.update({ active: false }, { transaction });
+
+      // If user is teacher, delete all courses that teacher created
+      if (user.roleType === Role.Teacher) {
+        await Course.update(
+          { active: false },
+          {
+            where: {
+              teacherId: user.id,
+            },
+          },
+          { transaction }
+        );
+      }
+    });
 
     return res.status(200).send({ data: translate('delete_success', req.hl) });
   } catch (error) {
