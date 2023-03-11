@@ -404,6 +404,15 @@ const updateCourse = async (req, res) => {
 
     const course = await Course.findOne({
       where: { id: courseId, active: true },
+      attributes: ['id', 'name', 'code'],
+      include: [
+        {
+          model: User,
+          as: 'teacher',
+          where: { active: true },
+          attributes: ['id', 'name', 'email'],
+        },
+      ],
     });
 
     if (!course) {
@@ -426,6 +435,9 @@ const updateCourse = async (req, res) => {
     }
 
     await course.save();
+
+    // Right here I can remove some attributes of course object like accessCode, updatedAt
+    // Because I've reassign them to course object, but for now I'll keep it as it is
 
     res.status(200).json({ data: course });
   } catch (error) {
