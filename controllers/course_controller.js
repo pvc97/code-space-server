@@ -400,7 +400,7 @@ const createCourse = async (req, res) => {
 const updateCourse = async (req, res) => {
   try {
     const courseId = req.params.id;
-    const { name, code, accessCode } = req.body;
+    const { name, code, accessCode, teacherId } = req.body;
 
     const course = await Course.findOne({
       where: { id: courseId, active: true },
@@ -432,6 +432,10 @@ const updateCourse = async (req, res) => {
 
     if (accessCode) {
       course.accessCode = accessCode;
+    }
+
+    if (teacherId) {
+      course.teacherId = teacherId;
     }
 
     await course.save();
