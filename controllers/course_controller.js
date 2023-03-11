@@ -427,6 +427,14 @@ const updateCourse = async (req, res) => {
     }
 
     if (teacherId) {
+      const user = await User.findOne({
+        where: { id: teacherId, active: true },
+      });
+      if (!user || user.roleType !== Role.Teacher) {
+        return res
+          .status(400)
+          .send({ error: translate('invalid_teacher_id', req.hl) });
+      }
       course.teacherId = teacherId;
     }
 
