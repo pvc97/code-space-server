@@ -219,6 +219,9 @@ const getProblemsCourse = async (req, res) => {
   }
 };
 
+/// Delete course will delete all problems of this course
+/// I think deleting problem will not delete its testcases
+/// Because testcases can't access directly without problem
 const deleteCourse = async (req, res) => {
   try {
     const id = req.params.id;
@@ -235,6 +238,29 @@ const deleteCourse = async (req, res) => {
         .send({ error: translate('invalid_course_id', req.hl) });
     }
 
+    // find all problems of this course
+    const problems = await Problem.findAll({
+      where: {
+        courseId: id,
+        active: true,
+      },
+    });
+
+    // delete all problems of this course
+    const problemIds = problems.map((problem) => problem.id);
+
+    await Problem.update(
+      { active: false },
+      {
+        where: {
+          id: {
+            [Op.in]: problemIds,
+          },
+        },
+      }
+    );
+
+    // delete course
     await course.update({ active: false });
 
     return res.status(200).send({ data: translate('delete_success', req.hl) });
