@@ -404,15 +404,7 @@ const updateCourse = async (req, res) => {
 
     const course = await Course.findOne({
       where: { id: courseId, active: true },
-      attributes: ['id', 'name', 'code'],
-      include: [
-        {
-          model: User,
-          as: 'teacher',
-          where: { active: true },
-          attributes: ['id', 'name', 'email'],
-        },
-      ],
+      attributes: ['id', 'name', 'code', 'teacherId'],
     });
 
     if (!course) {
@@ -440,10 +432,28 @@ const updateCourse = async (req, res) => {
 
     await course.save();
 
+    const updatedCourse = await course.reload({
+      include: [
+        {
+          model: User,
+          as: 'teacher',
+          where: { active: true },
+          attributes: ['id', 'name', 'email'],
+        },
+      ],
+    });
+
     // Right here I can remove some attributes of course object like accessCode, updatedAt
     // Because I've reassign them to course object, but for now I'll keep it as it is
 
-    res.status(200).json({ data: course });
+    res.status(200).json({
+      data: {
+        id: updatedCourse.id,
+        name: updatedCourse.name,
+        code: updatedCourse.code,
+        teacher: updatedCourse.teacher,
+      },
+    });
   } catch (error) {
     console.log(error);
     if (error.name === 'SequelizeUniqueConstraintError') {
