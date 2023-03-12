@@ -45,6 +45,7 @@ const getAllUsers = async (req, res) => {
     let offset = (page - 1) * limit;
     const q = req.query.q;
     const all = req.query.all; // Get all users without pagination
+    const onlyLast = req.query.onlyLast; // Get only last user of current page
 
     let whereCondition = { active: true };
 
@@ -64,6 +65,15 @@ const getAllUsers = async (req, res) => {
       };
     }
 
+    if (all !== undefined && onlyLast !== undefined) {
+      return res.status(400).send({
+        error: translate(
+          'all_and_only_last_cannot_use_at_the_same_time',
+          req.hl
+        ),
+      });
+    }
+
     if (all === 'true') {
       limit = null;
       offset = null;
@@ -78,10 +88,19 @@ const getAllUsers = async (req, res) => {
       // Order by last name in vietnamese
     });
 
-    res.status(200).send({ data: users });
+    // Get only last user of current page
+    if (onlyLast === 'true') {
+      return res.status(200).send({
+        data: users.slice(users.length - 1, users.length),
+      });
+    }
+
+    return res.status(200).send({ data: users });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error: translate('internal_server_error', req.hl) });
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
   }
 };
 

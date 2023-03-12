@@ -42,5 +42,6 @@
   "required_user_id": "Required user id",
   "invalid_old_password": "Invalid old password",
   "new_password_same_as_old": "New password same as old",
-  "email_already_exists": "Email already exists"
+  "email_already_exists": "Email already exists",
+  "all_and_only_last_cannot_use_at_the_same_time": "All and onlyLast cannot use at the same time"
 }
