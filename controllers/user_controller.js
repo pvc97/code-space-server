@@ -45,7 +45,6 @@ const getAllUsers = async (req, res) => {
     let offset = (page - 1) * limit;
     const q = req.query.q;
     const all = req.query.all; // Get all users without pagination
-    const onlyLast = req.query.onlyLast; // Get only last user of current page
 
     let whereCondition = { active: true };
 
@@ -65,15 +64,6 @@ const getAllUsers = async (req, res) => {
       };
     }
 
-    if (all === 'true' && onlyLast === 'true') {
-      return res.status(400).send({
-        error: translate(
-          'all_and_only_last_cannot_use_at_the_same_time',
-          req.hl
-        ),
-      });
-    }
-
     if (all === 'true') {
       limit = null;
       offset = null;
@@ -87,13 +77,6 @@ const getAllUsers = async (req, res) => {
       order: [[sequelize.literal("SUBSTRING_INDEX(name, ' ', -1)"), 'ASC']],
       // Order by last name in vietnamese
     });
-
-    // Get only last user of current page
-    if (onlyLast === 'true') {
-      return res.status(200).send({
-        data: users.slice(users.length - 1, users.length),
-      });
-    }
 
     return res.status(200).send({ data: users });
   } catch (error) {
