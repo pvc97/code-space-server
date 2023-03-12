@@ -65,7 +65,7 @@ const getAllUsers = async (req, res) => {
       };
     }
 
-    if (all !== undefined && onlyLast !== undefined) {
+    if (all === 'true' && onlyLast === 'true') {
       return res.status(400).send({
         error: translate(
           'all_and_only_last_cannot_use_at_the_same_time',
