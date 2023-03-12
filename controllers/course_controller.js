@@ -603,11 +603,11 @@ const getRanking = async (req, res) => {
       `
       SELECT bests.name, CAST(COALESCE(SUM(best), 0) AS UNSIGNED) as totalPoint
       FROM 
-      (SELECT users.name, MAX(submissions.totalPoint) as best
+      (SELECT users.name, COALESCE(MAX(submissions.totalPoint), 0) as best
       FROM users
       INNER JOIN studentcourses
       ON users.id = studentcourses.studentId AND users.active = true AND studentcourses.courseId = "${courseId}"
-      INNER JOIN problems
+      LEFT JOIN problems
       ON studentcourses.courseId = problems.courseId AND problems.active = true
       LEFT JOIN submissions
       ON submissions.createdBy = users.id AND submissions.problemId = problems.id
