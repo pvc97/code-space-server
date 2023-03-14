@@ -6,13 +6,13 @@ const { Role } = require('../models');
 module.exports = {
   async up(queryInterface, Sequelize) {
     const teacher = await queryInterface.sequelize.query(
-      `SELECT * FROM users WHERE roleType = '${Role.Teacher}' LIMIT 1`
+      `SELECT * FROM Users WHERE roleType = '${Role.Teacher}' LIMIT 1`
     );
 
     const teacherId = teacher[0][0].id;
 
     await queryInterface.bulkInsert(
-      'courses',
+      'Courses',
       [
         {
           id: uuidv4(),
@@ -38,6 +38,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('courses', null, {});
+    await queryInterface.bulkDelete('Courses', null, {});
   },
 };

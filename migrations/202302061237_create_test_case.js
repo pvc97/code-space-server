@@ -22,7 +22,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'problems',
+          model: 'Problems',
           key: 'id',
         },
       },

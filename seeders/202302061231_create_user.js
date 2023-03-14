@@ -11,7 +11,7 @@ module.exports = {
     const hashedPassword = await bcryptjs.hash('123456', PASSWORD_SALT_LENGTH);
 
     await queryInterface.bulkInsert(
-      'users',
+      'Users',
       [
         {
           id: uuidv4(),
@@ -49,6 +49,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('users', null, {});
+    await queryInterface.bulkDelete('Users', null, {});
   },
 };

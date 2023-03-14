@@ -12,7 +12,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'testcases',
+          model: 'TestCases',
           key: 'id',
         },
       },
@@ -24,7 +24,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'submissions',
+          model: 'Submissions',
           key: 'id',
         },
       },
