@@ -6,7 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 module.exports = {
   async up(queryInterface, Sequelize) {
     const problem = await queryInterface.sequelize.query(
-      `SELECT * FROM problems LIMIT 1`
+      `SELECT * FROM Problems LIMIT 1`
     );
     const problemId = problem[0][0].id;
 

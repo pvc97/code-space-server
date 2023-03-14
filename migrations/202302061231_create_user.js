@@ -27,10 +27,11 @@ module.exports = {
         allowNull: false,
       },
       roleType: {
-        type: Sequelize.ENUM('manager', 'student', 'teacher'),
+        type: Sequelize.ENUM,
+        values: ['manager', 'student', 'teacher'],
         allowNull: false,
         references: {
-          model: 'roles',
+          model: 'Roles',
           key: 'roleType',
         },
       },

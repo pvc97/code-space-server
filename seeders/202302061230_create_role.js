@@ -8,7 +8,7 @@ const { Role } = require('../models');
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert(
-      'roles',
+      'Roles',
       [
         {
           roleType: Role.Manager,
@@ -25,6 +25,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('roles', null, {});
+    await queryInterface.bulkDelete('Roles', null, {});
   },
 };

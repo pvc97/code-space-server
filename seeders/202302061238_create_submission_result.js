@@ -11,12 +11,12 @@ module.exports = {
     const problemId = problem[0][0].id;
 
     const submission = await queryInterface.sequelize.query(
-      `SELECT * FROM submissions WHERE problemId = '${problemId}' LIMIT 1`
+      `SELECT * FROM Submissions WHERE problemId = '${problemId}' LIMIT 1`
     );
     const submissionId = submission[0][0].id;
 
     const testCase = await queryInterface.sequelize.query(
-      `SELECT * FROM testcases WHERE problemId = '${problemId}' LIMIT 1`
+      `SELECT * FROM TestCases WHERE problemId = '${problemId}' LIMIT 1`
     );
     const testCaseId = testCase[0][0].id;
 
