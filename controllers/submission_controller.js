@@ -168,7 +168,19 @@ const getSubmissionDetail = async (req, res) => {
   }
 };
 
+// ENHANCEMENT:
+const submissionCallback = async (req, res) => {
+  try {
+    console.log(req.body);
+    res.status(200).send({ data: 'Hello from webhook' });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
   createSubmission,
+  submissionCallback,
   getSubmissionDetail,
 };
