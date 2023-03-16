@@ -170,6 +170,38 @@ const getSubmissionDetail = async (req, res) => {
 const submissionCallback = async (req, res) => {
   try {
     console.log(req.body);
+    const {
+      stdout,
+      time,
+      memory,
+      stderr,
+      token,
+      compile_output,
+      message,
+      status,
+    } = req.body;
+
+    const correct = status.id == 3;
+
+    let output = stdout || stderr || compile_output || '';
+    // Replace all \n with ''
+    output = output.replace(/\n/g, '');
+    // Decode base64
+    output = Buffer.from(output, 'base64').toString('ascii');
+
+    // Update submission result
+    await SubmissionResult.update(
+      {
+        output,
+        correct,
+      },
+      {
+        where: {
+          judgeToken: token,
+        },
+      }
+    );
+
     return res.sendStatus(204);
   } catch (err) {
     console.log(err);
