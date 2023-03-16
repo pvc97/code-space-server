@@ -181,6 +181,8 @@ const submissionCallback = async (req, res) => {
       status,
     } = req.body;
 
+    const io = req.io;
+
     const correct = status.id == 3;
 
     let output = stdout || stderr || compile_output || '';
@@ -189,18 +191,20 @@ const submissionCallback = async (req, res) => {
     // Decode base64
     output = Buffer.from(output, 'base64').toString('ascii');
 
-    // Update submission result
-    await SubmissionResult.update(
-      {
+    // Find submission result with the token
+    const submissionResult = await SubmissionResult.findOne({
+      where: { judgeToken: token },
+    });
+
+    if (submissionResult) {
+      io.to(submissionResult.submissionId).emit('result', correct);
+
+      // Update submission result
+      await submissionResult.update({
         output,
         correct,
-      },
-      {
-        where: {
-          judgeToken: token,
-        },
-      }
-    );
+      });
+    }
 
     return res.sendStatus(204);
   } catch (err) {

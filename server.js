@@ -12,6 +12,8 @@ const {
 const { cors } = require('./middlewares/cors/cors');
 const injectLanguage = require('./middlewares/language/language_middleware');
 
+const port = process.env.PORT || 3000;
+
 i18next.init({
   lng: 'vi',
   resources: {
@@ -29,15 +31,42 @@ i18next.init({
 });
 
 const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+
 // injectLanguage must use before express.json() because if express.json() has error
 // error will jump to handleInvalidJson middleware (not go in to injectLanguage)
 app.use(injectLanguage);
 app.use(express.json());
 app.use(handleInvalidJson);
 
+app.use((req, res, next) => {
+  console.log('This is middleware');
+  next();
+});
+
 // TODO: Remove cors middleware in production
 // This only for development to make flutter web can access the api
 app.use(cors);
+
+io.on('connection', (socket) => {
+  console.log(`Client ${socket.id} connected`);
+
+  socket.on('submissionId', (submissionId) => {
+    socket.join(submissionId);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('client disconnected');
+  });
+});
+
+// Attach socket.io to app
+app.use((req, res, next) => {
+  console.log('Attach socket.io to app');
+  req.io = io;
+  next();
+});
 
 // Static files
 const publicPathDirectory = path.join(__dirname, './public');
@@ -45,7 +74,18 @@ app.use('/public', express.static(publicPathDirectory));
 
 app.use('/api/v1', rootRouter);
 
-const port = process.env.PORT || 3000;
-app.listen(port, async () => {
+io.on('connection', (socket) => {
+  console.log(`Client ${socket.id} connected`);
+
+  socket.on('submissionId', (submissionId) => {
+    socket.join(submissionId);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('client disconnected');
+  });
+});
+
+http.listen(port, async () => {
   console.log(`Server is running on port ${port}`);
 });
