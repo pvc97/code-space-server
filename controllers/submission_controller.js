@@ -230,6 +230,21 @@ const createSubmission = async (req, res) => {
     }
 
     // Step 2:
+    const problem = await Problem.findByPk(problemId, {
+      include: {
+        model: TestCase,
+        as: 'testCases',
+        where: { active: true },
+      },
+    });
+
+    if (!problem) {
+      return res
+        .status(400)
+        .send({ error: translate('invalid_problem_id', req.hl) });
+    }
+
+    // Step 3:
     const submission = await Submission.create({
       sourceCode,
       totalPoint: 0,
@@ -239,15 +254,7 @@ const createSubmission = async (req, res) => {
 
     res.status(201).send({ data: { id: submission.id } });
 
-    // Step 3:
-    const problem = await Problem.findByPk(problemId, {
-      include: {
-        model: TestCase,
-        as: 'testCases',
-        where: { active: true },
-      },
-    });
-
+    // Step 4:
     const testCases = problem.testCases;
     const inputSubmissions = [];
     for (testCase of testCases) {
@@ -262,7 +269,7 @@ const createSubmission = async (req, res) => {
       inputSubmissions.push(submission);
     }
 
-    // Submit code to Judge0
+    // Step 5: Submit code to Judge0
     const tokens = await submit(inputSubmissions);
 
     // Save list of submissionResult to database
