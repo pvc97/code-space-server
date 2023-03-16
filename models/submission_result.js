@@ -25,30 +25,13 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      // testCaseId: {
-      //   type: DataTypes.UUID,
-      //   allowNull: false,
-      //   references: {
-      //     model: 'testcases',
-      //     key: 'id',
-      //   },
-      // },
       output: {
         type: DataTypes.TEXT,
-        allowNull: false,
+        allowNull: true,
       },
-      // submissionId: {
-      //   type: DataTypes.UUID,
-      //   allowNull: false,
-      //   references: {
-      //     model: 'submissions',
-      //     key: 'id',
-      //   },
-      // },
-      id: {
+      judgeToken: {
         type: DataTypes.UUID,
         allowNull: true,
-        unique: true,
       },
       correct: {
         type: DataTypes.BOOLEAN,
