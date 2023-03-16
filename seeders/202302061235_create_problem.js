@@ -21,7 +21,7 @@ module.exports = {
           pointPerTestCase: 10,
           courseId: courseId,
           active: true,
-          languageId: 54,
+          languageId: 71, // Python 3
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -32,7 +32,7 @@ module.exports = {
           pointPerTestCase: 10,
           courseId: courseId,
           active: true,
-          languageId: 54,
+          languageId: 71, // Python 3
           createdAt: new Date(),
           updatedAt: new Date(),
         },

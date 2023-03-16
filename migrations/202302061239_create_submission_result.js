@@ -18,7 +18,7 @@ module.exports = {
       },
       output: {
         type: Sequelize.TEXT,
-        allowNull: false,
+        allowNull: true,
       },
       submissionId: {
         type: Sequelize.UUID,
@@ -27,6 +27,11 @@ module.exports = {
           model: 'Submissions',
           key: 'id',
         },
+      },
+      judgeToken: {
+        type: Sequelize.UUID,
+        unique: true,
+        allowNull: true,
       },
       correct: {
         type: Sequelize.BOOLEAN,

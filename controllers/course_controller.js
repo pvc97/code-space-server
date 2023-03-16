@@ -178,9 +178,9 @@ const getProblemsCourse = async (req, res) => {
       if (role === Role.Student) {
         const problemId = problem.id;
         const maxPointOfUser = await sequelize.query(
-          `SELECT COALESCE(MAX(submissions.totalPoint), 0) as maxPoint 
-        FROM code_space_db.submissions
-        WHERE submissions.problemId = "${problemId}" AND submissions.createdBy = "${userId}"`,
+          `SELECT COALESCE(MAX(Submissions.totalPoint), 0) as maxPoint 
+        FROM Submissions
+        WHERE Submissions.problemId = "${problemId}" AND Submissions.createdBy = "${userId}"`,
           {
             type: QueryTypes.SELECT,
           }
@@ -189,8 +189,8 @@ const getProblemsCourse = async (req, res) => {
 
         const numberOfTestcases = await sequelize.query(
           `SELECT COUNT(*) as numberOfTestcases
-        FROM code_space_db.testcases 
-        WHERE testcases.problemId = "${problemId}"`,
+        FROM TestCases 
+        WHERE TestCases.problemId = "${problemId}"`,
           {
             type: QueryTypes.SELECT,
           }
@@ -603,15 +603,15 @@ const getRanking = async (req, res) => {
       `
       SELECT bests.name, CAST(COALESCE(SUM(best), 0) AS UNSIGNED) as totalPoint
       FROM 
-      (SELECT users.name, COALESCE(MAX(submissions.totalPoint), 0) as best
-      FROM users
-      INNER JOIN studentcourses
-      ON users.id = studentcourses.studentId AND users.active = true AND studentcourses.courseId = "${courseId}"
-      LEFT JOIN problems
-      ON studentcourses.courseId = problems.courseId AND problems.active = true
-      LEFT JOIN submissions
-      ON submissions.createdBy = users.id AND submissions.problemId = problems.id
-      GROUP BY users.id, problems.id) as bests
+      (SELECT Users.name, COALESCE(MAX(Submissions.totalPoint), 0) as best
+      FROM Users
+      INNER JOIN StudentCourses
+      ON Users.id = StudentCourses.studentId AND Users.active = true AND StudentCourses.courseId = "${courseId}"
+      LEFT JOIN Problems
+      ON StudentCourses.courseId = Problems.courseId AND Problems.active = true
+      LEFT JOIN Submissions
+      ON Submissions.createdBy = Users.id AND Submissions.problemId = Problems.id
+      GROUP BY Users.id, Problems.id) as bests
       GROUP BY name
       ORDER BY totalPoint DESC
       LIMIT ${limit} OFFSET ${offset}`,

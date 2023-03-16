@@ -145,6 +145,16 @@ const getProblem = async (req, res) => {
         .send({ error: translate('invalid_problem_id', req.hl) });
     }
 
+    // Get numbers of test cases of problem
+    const numberOfTestCases = await TestCase.count({
+      where: {
+        problemId: problem.id,
+        active: true,
+      },
+    });
+
+    problem.dataValues.numberOfTestCases = numberOfTestCases;
+
     delete problem.dataValues.languageId;
     delete problem.dataValues.active;
 
