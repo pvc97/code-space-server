@@ -30,6 +30,7 @@ module.exports = {
       },
       judgeToken: {
         type: Sequelize.UUID,
+        unique: true,
         allowNull: true,
       },
       correct: {

@@ -31,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       judgeToken: {
         type: DataTypes.UUID,
+        unique: true,
         allowNull: true,
       },
       correct: {

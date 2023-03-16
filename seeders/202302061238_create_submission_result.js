@@ -28,7 +28,7 @@ module.exports = {
           testCaseId: testCaseId,
           submissionId: submissionId,
           output: null,
-          correct: true,
+          correct: false,
           judgeToken: uuidv4(),
         },
       ],
