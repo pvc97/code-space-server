@@ -45,6 +45,11 @@ module.exports = (sequelize, DataTypes) => {
       //     key: 'id',
       //   },
       // },
+      id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        unique: true,
+      },
       correct: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
