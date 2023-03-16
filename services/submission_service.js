@@ -40,8 +40,8 @@ const apiProvider = require('./api_provider');
 // };
 
 /**
- * Get submission result from Judge0 API
- * Then check if all submissions are completed calling fetchSubmission after a second
+ * Submit source code to Judge0 API with callback_url
+ * Then return list of tokens
  */
 const submit = async (submissions) => {
   const response = await apiProvider.post('/submissions/batch', {
@@ -52,7 +52,8 @@ const submit = async (submissions) => {
   });
 
   const tokens = response.data.map((submission) => submission.token);
-  console.log(tokens);
+
+  return tokens;
 };
 
 // function isComplete(submissions) {

@@ -204,6 +204,7 @@ const createSubmission = async (req, res) => {
       createdBy: userId,
       problemId,
     });
+
     res.status(201).send({ data: { id: submission.id } });
 
     // Step 3:
@@ -230,7 +231,21 @@ const createSubmission = async (req, res) => {
     }
 
     // Submit code to Judge0
-    submit(inputSubmissions);
+    const tokens = await submit(inputSubmissions);
+
+    // Save list of submissionResult to database
+    const submissionResults = [];
+    for (var i = 0; i < tokens.length; ++i) {
+      const submissionResult = {
+        submissionId: submission.id,
+        judgeToken: tokens[i],
+        testCaseId: testCases[i].id,
+        correct: false,
+      };
+      submissionResults.push(submissionResult);
+    }
+
+    SubmissionResult.bulkCreate(submissionResults);
 
     // let totalPoint = 0;
     // const submissionResults = [];
