@@ -25,6 +25,10 @@ const getSubmissionDetail = async (req, res) => {
       where: { submissionId: id },
     });
 
+    // Find problem
+    const problem = await Problem.findByPk(submission.problemId);
+    let totalPoint = 0;
+
     const results = [];
     for (submissionResult of submissionResults) {
       const testCase = await TestCase.findByPk(submissionResult.testCaseId);
@@ -42,6 +46,16 @@ const getSubmissionDetail = async (req, res) => {
         };
         results.push(resultItem);
       }
+
+      if (submissionResult.correct && problem) {
+        totalPoint += problem.pointPerTestCase;
+      }
+    }
+
+    // Update total point if old total point is different from new total point
+    if (submission.totalPoint !== totalPoint) {
+      submission.totalPoint = totalPoint;
+      await submission.save();
     }
 
     submission.dataValues.results = results;
