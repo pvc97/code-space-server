@@ -5,6 +5,7 @@ const {
   Problem,
   Role,
   StudentCourse,
+  TestCase,
   User,
   sequelize,
 } = require('../models');
@@ -168,7 +169,7 @@ const getProblemsCourse = async (req, res) => {
       where: whereCondition,
       limit: limit,
       offset: offset,
-      attributes: ['id', 'name', 'pointPerTestCase'],
+      attributes: ['id', 'name'],
       order: [['createdAt', 'ASC']], // Order by created date from oldest to newest (ASC)
     });
 
@@ -177,37 +178,37 @@ const getProblemsCourse = async (req, res) => {
     for (const problem of problems) {
       if (role === Role.Student) {
         const problemId = problem.id;
-        const maxPointOfUser = await sequelize.query(
-          `SELECT COALESCE(MAX(Submissions.totalPoint), 0) as maxPoint 
-        FROM Submissions
-        WHERE Submissions.problemId = "${problemId}" AND Submissions.createdBy = "${userId}"`,
+
+        const maxCorrectCount = await sequelize.query(
+          `SELECT MAX(totalCorrect.corrections) AS maxCorrect
+          FROM (
+            SELECT SUM(SubmissionResults.correct) AS corrections
+            FROM Problems
+            INNER JOIN Submissions
+            ON Problems.id = Submissions.problemId AND Problems.id = "${problemId}" AND Submissions.createdBy = "${userId}"
+            INNER JOIN SubmissionResults
+            ON Submissions.id = SubmissionResults.submissionId
+            GROUP BY Submissions.id
+          ) AS totalCorrect`,
           {
             type: QueryTypes.SELECT,
           }
         );
-        const maxUserPoint = maxPointOfUser[0]['maxPoint'];
 
-        const numberOfTestcases = await sequelize.query(
-          `SELECT COUNT(*) as numberOfTestcases
-        FROM TestCases 
-        WHERE TestCases.problemId = "${problemId}"`,
-          {
-            type: QueryTypes.SELECT,
-          }
-        );
-        const testCaseCount = numberOfTestcases[0]['numberOfTestcases'];
-        // problem.dataValues.maxUserPoint = maxUserPoint;
-        // problem.dataValues.testCaseCount = testCaseCount;
+        const maxCorrect = maxCorrectCount[0]['maxCorrect'];
 
-        problem.dataValues.completed =
-          maxUserPoint !== 0 &&
-          maxUserPoint === testCaseCount * problem.pointPerTestCase;
+        // Get number of testcases of this problem
+        const numberOfTestcases = await TestCase.count({
+          where: {
+            problemId: problemId,
+          },
+        });
+
+        problem.dataValues.completed = maxCorrect == numberOfTestcases;
       } else {
         // If user is not student => set completed field to false
         problem.dataValues.completed = false;
       }
-
-      delete problem.dataValues.pointPerTestCase;
     }
 
     return res.status(200).send({ data: problems });
