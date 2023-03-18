@@ -600,10 +600,10 @@ const getRanking = async (req, res) => {
     // https://sequelize.org/docs/v6/core-concepts/raw-queries/
     // Refer from: https://stackoverflow.com/questions/6553531/mysql-get-sum-grouped-max-of-group
     // TODO: Recheck this query
-    // CAST to convert totalPoint from string to integer
+    // CAST to convert totalPoints from string to integer
     const ranking = await sequelize.query(
       `
-      SELECT maxs.name, CAST(COALESCE(SUM(maxPoint), 0) AS UNSIGNED) as totalPoint
+      SELECT maxs.name, CAST(COALESCE(SUM(maxPoint), 0) AS UNSIGNED) as totalPoints
       FROM
       (SELECT maxPointProblem.name, maxPointProblem.userId, MAX(maxPointProblem.maxPoints) as maxPoint
       FROM
@@ -620,7 +620,7 @@ const getRanking = async (req, res) => {
       GROUP BY Users.id, Problems.id, Submissions.id) AS maxPointProblem
       GROUP BY maxPointProblem.problemId, maxPointProblem.userId) maxs
       GROUP BY maxs.userId
-      ORDER BY totalPoint DESC
+      ORDER BY totalPoints DESC
       LIMIT ${limit} OFFSET ${offset}`,
       {
         type: QueryTypes.SELECT,

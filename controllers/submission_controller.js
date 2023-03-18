@@ -17,7 +17,7 @@ const getSubmissionDetail = async (req, res) => {
 
     // const submission = await Submission.findByPk(id);
     const queryResult = await sequelize.query(
-      `SELECT Submissions.id, Submissions.sourceCode, Submissions.problemId, SUM(IF(correct = true, correct * (Problems.pointPerTestCase), 0)) as totalPoints
+      `SELECT Submissions.id, Submissions.sourceCode, Submissions.problemId, CAST(SUM(IF(correct = true, correct * (Problems.pointPerTestCase), 0)) AS UNSIGNED) as totalPoints
       FROM Submissions
       INNER JOIN SubmissionResults
       ON Submissions.id = SubmissionResults.submissionId AND Submissions.id = "${id}"
@@ -58,43 +58,7 @@ const getSubmissionDetail = async (req, res) => {
       ],
     });
 
-    submission.result = submissionResults;
-
-    // // Find problem
-    // const problem = await Problem.findByPk(submission.problemId);
-    // let totalPoint = 0;
-
-    // const results = [];
-    // for (submissionResult of submissionResults) {
-    //   const testCase = await TestCase.findByPk(submissionResult.testCaseId);
-
-    //   console.log(testCase);
-
-    //   // Show the test case if it is marked as show or the submission result is correct
-    //   if (testCase.show === true || submissionResult.correct === true) {
-    //     const resultItem = {
-    //       stdin: testCase.stdin,
-    //       output: submissionResult.output,
-    //       expectedOutput: testCase.expectedOutput,
-    //       correct: submissionResult.correct,
-    //       show: testCase.show,
-    //     };
-    //     results.push(resultItem);
-    //   }
-
-    //   if (submissionResult.correct && problem) {
-    //     totalPoint += problem.pointPerTestCase;
-    //   }
-    // }
-
-    // // Update total point if old total point is different from new total point
-    // if (submission.totalPoint !== totalPoint) {
-    //   submission.totalPoint = totalPoint;
-    //   await submission.save();
-    // }
-
-    // submission.dataValues.results = results;
-    // submission.dataValues.totalTestCase = submissionResults.length;
+    submission.results = submissionResults;
 
     res.status(200).send({ data: submission });
   } catch (err) {
