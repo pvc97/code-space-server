@@ -180,6 +180,17 @@ const createSubmission = async (req, res) => {
     });
 
     if (!problem) {
+      // Check number of test cases
+      const numberOfTestCases = await TestCase.count({
+        where: { problemId, active: true },
+      });
+
+      if (numberOfTestCases === 0) {
+        return res
+          .status(400)
+          .send({ error: translate('problem_has_no_test_case', req.hl) });
+      }
+
       return res
         .status(400)
         .send({ error: translate('invalid_problem_id', req.hl) });
