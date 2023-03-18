@@ -58,7 +58,18 @@ const getSubmissionDetail = async (req, res) => {
       ],
     });
 
-    submission.results = submissionResults;
+    // Remove test case if correct is false and show is false
+    const filteredSubmissionResults = submissionResults.filter(
+      (submissionResult) => {
+        if (submissionResult.correct) {
+          return true;
+        } else {
+          return submissionResult.dataValues.show;
+        }
+      }
+    );
+
+    submission.results = filteredSubmissionResults;
 
     res.status(200).send({ data: submission });
   } catch (err) {
