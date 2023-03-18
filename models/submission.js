@@ -43,11 +43,6 @@ module.exports = (sequelize, DataTypes) => {
       //     key: 'id',
       //   },
       // },
-      totalPoint: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0,
-        allowNull: false,
-      },
     },
     {
       sequelize,

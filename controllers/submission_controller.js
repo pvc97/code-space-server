@@ -5,7 +5,9 @@ const {
   TestCase,
   Submission,
   SubmissionResult,
+  sequelize,
 } = require('../models');
+const { QueryTypes } = require('sequelize');
 
 const translate = require('../utils/translate');
 
@@ -13,9 +15,23 @@ const getSubmissionDetail = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const submission = await Submission.findByPk(id);
+    // const submission = await Submission.findByPk(id);
+    const queryResult = await sequelize.query(
+      `SELECT Submissions.id, Submissions.sourceCode, Submissions.problemId, SUM(IF(correct = true, correct * (Problems.pointPerTestCase), 0)) as totalPoints
+      FROM Submissions
+      INNER JOIN SubmissionResults
+      ON Submissions.id = SubmissionResults.submissionId AND Submissions.id = "${id}"
+      INNER JOIN Problems
+      ON Problems.id = Submissions.problemId LIMIT 1`,
+      {
+        type: QueryTypes.SELECT,
+      }
+    );
 
-    if (!submission) {
+    const submission = queryResult[0];
+    // Have to use (submission[0].id === null) of !submission
+    // Because return value will be an array
+    if (submission.id === null) {
       return res
         .status(404)
         .send({ error: translate('submission_not_found', req.hl) });
@@ -23,43 +39,62 @@ const getSubmissionDetail = async (req, res) => {
 
     const submissionResults = await SubmissionResult.findAll({
       where: { submissionId: id },
+      attributes: [
+        'output',
+        'correct',
+
+        [sequelize.literal('testCase.stdin'), 'stdin'],
+        [sequelize.literal('testCase.expectedOutput'), 'expectedOutput'],
+        [sequelize.literal('testCase.show'), 'show'],
+        // "testCase" in testCase.stdin is "as" in the include below
+      ],
+      include: [
+        {
+          model: TestCase,
+          as: 'testCase',
+          where: { active: true },
+          attributes: [],
+        },
+      ],
     });
 
-    // Find problem
-    const problem = await Problem.findByPk(submission.problemId);
-    let totalPoint = 0;
+    submission.result = submissionResults;
 
-    const results = [];
-    for (submissionResult of submissionResults) {
-      const testCase = await TestCase.findByPk(submissionResult.testCaseId);
+    // // Find problem
+    // const problem = await Problem.findByPk(submission.problemId);
+    // let totalPoint = 0;
 
-      console.log(testCase);
+    // const results = [];
+    // for (submissionResult of submissionResults) {
+    //   const testCase = await TestCase.findByPk(submissionResult.testCaseId);
 
-      // Show the test case if it is marked as show or the submission result is correct
-      if (testCase.show === true || submissionResult.correct === true) {
-        const resultItem = {
-          stdin: testCase.stdin,
-          output: submissionResult.output,
-          expectedOutput: testCase.expectedOutput,
-          correct: submissionResult.correct,
-          show: testCase.show,
-        };
-        results.push(resultItem);
-      }
+    //   console.log(testCase);
 
-      if (submissionResult.correct && problem) {
-        totalPoint += problem.pointPerTestCase;
-      }
-    }
+    //   // Show the test case if it is marked as show or the submission result is correct
+    //   if (testCase.show === true || submissionResult.correct === true) {
+    //     const resultItem = {
+    //       stdin: testCase.stdin,
+    //       output: submissionResult.output,
+    //       expectedOutput: testCase.expectedOutput,
+    //       correct: submissionResult.correct,
+    //       show: testCase.show,
+    //     };
+    //     results.push(resultItem);
+    //   }
 
-    // Update total point if old total point is different from new total point
-    if (submission.totalPoint !== totalPoint) {
-      submission.totalPoint = totalPoint;
-      await submission.save();
-    }
+    //   if (submissionResult.correct && problem) {
+    //     totalPoint += problem.pointPerTestCase;
+    //   }
+    // }
 
-    submission.dataValues.results = results;
-    submission.dataValues.totalTestCase = submissionResults.length;
+    // // Update total point if old total point is different from new total point
+    // if (submission.totalPoint !== totalPoint) {
+    //   submission.totalPoint = totalPoint;
+    //   await submission.save();
+    // }
+
+    // submission.dataValues.results = results;
+    // submission.dataValues.totalTestCase = submissionResults.length;
 
     res.status(200).send({ data: submission });
   } catch (err) {
@@ -153,7 +188,6 @@ const createSubmission = async (req, res) => {
     // Step 3:
     const submission = await Submission.create({
       sourceCode,
-      totalPoint: 0,
       createdBy: userId,
       problemId,
     });
