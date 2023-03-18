@@ -5,6 +5,7 @@ const {
   Problem,
   Role,
   StudentCourse,
+  TestCase,
   User,
   sequelize,
 } = require('../models');
@@ -168,7 +169,7 @@ const getProblemsCourse = async (req, res) => {
       where: whereCondition,
       limit: limit,
       offset: offset,
-      attributes: ['id', 'name', 'pointPerTestCase'],
+      attributes: ['id', 'name'],
       order: [['createdAt', 'ASC']], // Order by created date from oldest to newest (ASC)
     });
 
@@ -177,37 +178,37 @@ const getProblemsCourse = async (req, res) => {
     for (const problem of problems) {
       if (role === Role.Student) {
         const problemId = problem.id;
-        const maxPointOfUser = await sequelize.query(
-          `SELECT COALESCE(MAX(Submissions.totalPoint), 0) as maxPoint 
-        FROM Submissions
-        WHERE Submissions.problemId = "${problemId}" AND Submissions.createdBy = "${userId}"`,
+
+        const maxCorrectCount = await sequelize.query(
+          `SELECT MAX(totalCorrect.corrections) AS maxCorrect
+          FROM (
+            SELECT SUM(SubmissionResults.correct) AS corrections
+            FROM Problems
+            INNER JOIN Submissions
+            ON Problems.id = Submissions.problemId AND Problems.id = "${problemId}" AND Submissions.createdBy = "${userId}"
+            INNER JOIN SubmissionResults
+            ON Submissions.id = SubmissionResults.submissionId
+            GROUP BY Submissions.id
+          ) AS totalCorrect`,
           {
             type: QueryTypes.SELECT,
           }
         );
-        const maxUserPoint = maxPointOfUser[0]['maxPoint'];
 
-        const numberOfTestcases = await sequelize.query(
-          `SELECT COUNT(*) as numberOfTestcases
-        FROM TestCases 
-        WHERE TestCases.problemId = "${problemId}"`,
-          {
-            type: QueryTypes.SELECT,
-          }
-        );
-        const testCaseCount = numberOfTestcases[0]['numberOfTestcases'];
-        // problem.dataValues.maxUserPoint = maxUserPoint;
-        // problem.dataValues.testCaseCount = testCaseCount;
+        const maxCorrect = maxCorrectCount[0]['maxCorrect'];
 
-        problem.dataValues.completed =
-          maxUserPoint !== 0 &&
-          maxUserPoint === testCaseCount * problem.pointPerTestCase;
+        // Get number of testcases of this problem
+        const numberOfTestcases = await TestCase.count({
+          where: {
+            problemId: problemId,
+          },
+        });
+
+        problem.dataValues.completed = maxCorrect == numberOfTestcases;
       } else {
         // If user is not student => set completed field to false
         problem.dataValues.completed = false;
       }
-
-      delete problem.dataValues.pointPerTestCase;
     }
 
     return res.status(200).send({ data: problems });
@@ -599,11 +600,14 @@ const getRanking = async (req, res) => {
     // https://sequelize.org/docs/v6/core-concepts/raw-queries/
     // Refer from: https://stackoverflow.com/questions/6553531/mysql-get-sum-grouped-max-of-group
     // TODO: Recheck this query
+    // CAST to convert totalPoints from string to integer
     const ranking = await sequelize.query(
       `
-      SELECT bests.name, CAST(COALESCE(SUM(best), 0) AS UNSIGNED) as totalPoint
-      FROM 
-      (SELECT Users.name, COALESCE(MAX(Submissions.totalPoint), 0) as best
+      SELECT maxs.name, CAST(COALESCE(SUM(maxPoint), 0) AS UNSIGNED) as totalPoints
+      FROM
+      (SELECT maxPointProblem.name, maxPointProblem.userId, MAX(maxPointProblem.maxPoints) as maxPoint
+      FROM
+      (SELECT Users.name, Users.id as userId, Problems.id as problemId, COALESCE(SUM(SubmissionResults.correct), 0) * Problems.pointPerTestCase as maxPoints
       FROM Users
       INNER JOIN StudentCourses
       ON Users.id = StudentCourses.studentId AND Users.active = true AND StudentCourses.courseId = "${courseId}"
@@ -611,9 +615,12 @@ const getRanking = async (req, res) => {
       ON StudentCourses.courseId = Problems.courseId AND Problems.active = true
       LEFT JOIN Submissions
       ON Submissions.createdBy = Users.id AND Submissions.problemId = Problems.id
-      GROUP BY Users.id, Problems.id) as bests
-      GROUP BY name
-      ORDER BY totalPoint DESC
+      LEFT JOIN SubmissionResults
+      ON SubmissionResults.submissionId = Submissions.id
+      GROUP BY Users.id, Problems.id, Submissions.id) AS maxPointProblem
+      GROUP BY maxPointProblem.problemId, maxPointProblem.userId) maxs
+      GROUP BY maxs.userId
+      ORDER BY totalPoints DESC
       LIMIT ${limit} OFFSET ${offset}`,
       {
         type: QueryTypes.SELECT,

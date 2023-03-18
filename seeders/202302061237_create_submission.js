@@ -23,7 +23,6 @@ module.exports = {
         {
           id: uuidv4(),
           sourceCode: 'print(a + b)',
-          // totalPoint: 0,
           createdBy: studentId,
           problemId: problemId,
           createdAt: new Date(),

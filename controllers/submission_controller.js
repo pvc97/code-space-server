@@ -5,7 +5,9 @@ const {
   TestCase,
   Submission,
   SubmissionResult,
+  sequelize,
 } = require('../models');
+const { QueryTypes } = require('sequelize');
 
 const translate = require('../utils/translate');
 
@@ -13,9 +15,23 @@ const getSubmissionDetail = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const submission = await Submission.findByPk(id);
+    // const submission = await Submission.findByPk(id);
+    const queryResult = await sequelize.query(
+      `SELECT Submissions.id, Submissions.sourceCode, Submissions.problemId, CAST(SUM(IF(correct = true, correct * (Problems.pointPerTestCase), 0)) AS UNSIGNED) as totalPoints
+      FROM Submissions
+      INNER JOIN SubmissionResults
+      ON Submissions.id = SubmissionResults.submissionId AND Submissions.id = "${id}"
+      INNER JOIN Problems
+      ON Problems.id = Submissions.problemId LIMIT 1`,
+      {
+        type: QueryTypes.SELECT,
+      }
+    );
 
-    if (!submission) {
+    const submission = queryResult[0];
+    // Have to use (submission[0].id === null) of !submission
+    // Because return value will be an array
+    if (submission.id === null) {
       return res
         .status(404)
         .send({ error: translate('submission_not_found', req.hl) });
@@ -23,29 +39,37 @@ const getSubmissionDetail = async (req, res) => {
 
     const submissionResults = await SubmissionResult.findAll({
       where: { submissionId: id },
+      attributes: [
+        'output',
+        'correct',
+
+        [sequelize.literal('testCase.stdin'), 'stdin'],
+        [sequelize.literal('testCase.expectedOutput'), 'expectedOutput'],
+        [sequelize.literal('testCase.show'), 'show'],
+        // "testCase" in testCase.stdin is "as" in the include below
+      ],
+      include: [
+        {
+          model: TestCase,
+          as: 'testCase',
+          where: { active: true },
+          attributes: [],
+        },
+      ],
     });
 
-    const results = [];
-    for (submissionResult of submissionResults) {
-      const testCase = await TestCase.findByPk(submissionResult.testCaseId);
-
-      console.log(testCase);
-
-      // Show the test case if it is marked as show or the submission result is correct
-      if (testCase.show === true || submissionResult.correct === true) {
-        const resultItem = {
-          stdin: testCase.stdin,
-          output: submissionResult.output,
-          expectedOutput: testCase.expectedOutput,
-          correct: submissionResult.correct,
-          show: testCase.show,
-        };
-        results.push(resultItem);
+    // Remove test case if correct is false and show is false
+    const filteredSubmissionResults = submissionResults.filter(
+      (submissionResult) => {
+        if (submissionResult.correct) {
+          return true;
+        } else {
+          return submissionResult.dataValues.show;
+        }
       }
-    }
+    );
 
-    submission.dataValues.results = results;
-    submission.dataValues.totalTestCase = submissionResults.length;
+    submission.results = filteredSubmissionResults;
 
     res.status(200).send({ data: submission });
   } catch (err) {
@@ -131,6 +155,17 @@ const createSubmission = async (req, res) => {
     });
 
     if (!problem) {
+      // Check number of test cases
+      const numberOfTestCases = await TestCase.count({
+        where: { problemId, active: true },
+      });
+
+      if (numberOfTestCases === 0) {
+        return res
+          .status(400)
+          .send({ error: translate('problem_has_no_test_case', req.hl) });
+      }
+
       return res
         .status(400)
         .send({ error: translate('invalid_problem_id', req.hl) });
@@ -139,7 +174,6 @@ const createSubmission = async (req, res) => {
     // Step 3:
     const submission = await Submission.create({
       sourceCode,
-      totalPoint: 0,
       createdBy: userId,
       problemId,
     });

@@ -28,11 +28,6 @@ module.exports = {
           key: 'id',
         },
       },
-      totalPoint: {
-        type: Sequelize.INTEGER,
-        defaultValue: 0,
-        allowNull: false,
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
