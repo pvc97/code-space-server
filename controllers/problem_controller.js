@@ -5,9 +5,10 @@ const {
   Problem,
   TestCase,
   Role,
-  StudentCourse,
+  Submission,
   sequelize,
 } = require('../models');
+const fs = require('fs');
 
 const createProblem = async (req, res) => {
   try {
@@ -253,23 +254,29 @@ const updateProblem = async (req, res) => {
     }
 
     if (file) {
-      // TODO: Delete old pdf file after update
+      // Delete old pdf file
+      const oldPdfPath = problem.pdfPath;
+      fs.unlink(oldPdfPath, (err) => {
+        if (err) {
+          console.error(err);
+        }
+      });
+
       const pdfPath = file.path.replace(/\\/g, '/');
       problem.pdfPath = pdfPath;
     }
 
     if (testCases && testCases.length > 0) {
-      // // Delete all test cases of problem by set active to false
-      // await TestCase.update(
-      //   { active: false },
-      //   {
-      //     where: {
-      //       problemId: problemId,
-      //     },
-      //   }
-      // );
+      // Delete all submission of this problem and delete all submissionResult of this submission
+      // because I use cascade delete in model and migration
+      await Submission.destroy({
+        where: {
+          problemId: problemId,
+        },
+      });
 
-      // Delete all test cases of problem
+      // Delete all test cases of problem and delete all submissionResult of this test case
+      // because I use cascade delete in model and migration
       await TestCase.destroy({
         where: {
           problemId: problemId,

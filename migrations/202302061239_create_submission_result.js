@@ -28,6 +28,7 @@ module.exports = {
           model: 'Submissions',
           key: 'id',
         },
+        onDelete: 'CASCADE',
       },
       judgeToken: {
         type: Sequelize.UUID,
