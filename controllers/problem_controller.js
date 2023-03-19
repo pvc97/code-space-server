@@ -202,11 +202,15 @@ const deleteProblem = async (req, res) => {
 };
 
 const updateProblem = async (req, res) => {
-  // If update problem
-  // There are two ways to handle submissions of this problem
-  // 1. Delete all submissions of this problem, student have to submit again
-  // 2. Rejudge all submissions
-  // I will choose option 1: It's easier to implement
+  // When updating problem
+  // There are 3 cases can cause submission will be deleted
+  // 1. Language change
+  // 2. PDF change
+  // 3. Test case change
+
+  // At client side, I will only send changed data
+  // Ex: Only when language changed, I will send new languageId to server
+  // otherwise, I will not add languageId to body
 
   try {
     const problemId = req.params.id;
@@ -214,6 +218,7 @@ const updateProblem = async (req, res) => {
     const testCases = JSON.parse(req.body.testCases);
     const languageId = req.body.languageId;
     const pointPerTestCase = req.body.pointPerTestCase;
+    const pdfDeleteSubmission = req.body.pdfDeleteSubmission;
     const file = req.file;
     const multerError = req.multerError;
 
@@ -247,6 +252,14 @@ const updateProblem = async (req, res) => {
       }
 
       problem.languageId = languageId;
+
+      // Delete all submission of this problem and delete all submissionResult of this submission
+      // because I use cascade delete in model and migration
+      await Submission.destroy({
+        where: {
+          problemId: problemId,
+        },
+      });
     }
 
     if (pointPerTestCase) {
@@ -264,6 +277,14 @@ const updateProblem = async (req, res) => {
 
       const pdfPath = file.path.replace(/\\/g, '/');
       problem.pdfPath = pdfPath;
+
+      if (pdfDeleteSubmission === 'true') {
+        await Submission.destroy({
+          where: {
+            problemId: problemId,
+          },
+        });
+      }
     }
 
     if (testCases && testCases.length > 0) {
