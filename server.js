@@ -78,6 +78,10 @@ io.on('connection', (socket) => {
   console.log(`Client ${socket.id} connected`);
 
   socket.on('submissionId', (submissionId) => {
+    // Leave all previous rooms before join new room
+    socket.leaveAll();
+    // console.log(`ROOMS: ${socket.rooms.size}`);
+
     socket.join(submissionId);
   });
 
