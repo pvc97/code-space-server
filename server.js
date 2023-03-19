@@ -40,11 +40,6 @@ app.use(injectLanguage);
 app.use(express.json());
 app.use(handleInvalidJson);
 
-app.use((req, res, next) => {
-  console.log('This is middleware');
-  next();
-});
-
 // TODO: Remove cors middleware in production
 // This only for development to make flutter web can access the api
 app.use(cors);
@@ -63,7 +58,6 @@ io.on('connection', (socket) => {
 
 // Attach socket.io to app
 app.use((req, res, next) => {
-  console.log('Attach socket.io to app');
   req.io = io;
   next();
 });
