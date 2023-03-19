@@ -190,6 +190,27 @@ const deleteProblem = async (req, res) => {
         .send({ error: translate('invalid_problem_id', req.hl) });
     }
 
+    // Only teacher of this course can delete problem
+    const course = await Course.findOne({
+      where: {
+        id: problem.courseId,
+        active: true,
+      },
+    });
+
+    if (!course) {
+      return res
+        .status(400)
+        .send({ error: translate('invalid_course_id', req.hl) });
+    }
+
+    if (course.teacherId !== req.user.id) {
+      return res
+        .status(403)
+        .send({ error: translate('permission_denied', req.hl) });
+    }
+
+    // Set active to false
     await problem.update({ active: false });
 
     return res.status(200).send({ data: translate('delete_success', req.hl) });
@@ -217,6 +238,7 @@ const updateProblem = async (req, res) => {
     const name = req.body.name;
     const testCases = JSON.parse(req.body.testCases);
     const languageId = req.body.languageId;
+    const courseId = req.body.courseId;
     const pointPerTestCase = req.body.pointPerTestCase;
     const pdfDeleteSubmission = req.body.pdfDeleteSubmission;
     const file = req.file;
@@ -224,6 +246,26 @@ const updateProblem = async (req, res) => {
 
     if (multerError) {
       return res.status(400).send({ error: translate(multerError, req.hl) });
+    }
+
+    // Only teacher of this course can update problem
+    const course = await Course.findOne({
+      where: {
+        id: courseId,
+        active: true,
+      },
+    });
+
+    if (!course) {
+      return res
+        .status(400)
+        .send({ error: translate('invalid_course_id', req.hl) });
+    }
+
+    if (course.teacherId !== req.user.id) {
+      return res
+        .status(403)
+        .send({ error: translate('permission_denied', req.hl) });
     }
 
     const problem = await Problem.findOne({
