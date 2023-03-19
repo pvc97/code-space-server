@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       Submission.hasMany(SubmissionResult, {
         foreignKey: 'submissionId',
         as: 'submissionResults',
+        onDelete: 'CASCADE',
       });
     }
   }

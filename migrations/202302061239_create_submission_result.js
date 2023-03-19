@@ -15,6 +15,7 @@ module.exports = {
           model: 'TestCases',
           key: 'id',
         },
+        onDelete: 'CASCADE',
       },
       output: {
         type: Sequelize.TEXT,
@@ -27,6 +28,7 @@ module.exports = {
           model: 'Submissions',
           key: 'id',
         },
+        onDelete: 'CASCADE',
       },
       judgeToken: {
         type: Sequelize.UUID,

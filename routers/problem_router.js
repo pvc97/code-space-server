@@ -5,6 +5,7 @@ const {
   createProblem,
   getProblem,
   deleteProblem,
+  updateProblem,
 } = require('../controllers/problem_controller');
 const { Role } = require('../models');
 const uploadPdf = require('../middlewares/upload/upload_pdf');
@@ -26,6 +27,15 @@ problemRouter.delete(
   authenticate,
   authorize([Role.Teacher]),
   deleteProblem
+);
+
+// Update problem
+problemRouter.put(
+  '/:id',
+  authenticate,
+  authorize([Role.Teacher]),
+  uploadPdf,
+  updateProblem
 );
 
 module.exports = problemRouter;
