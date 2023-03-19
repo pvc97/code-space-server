@@ -415,7 +415,6 @@ const updateCourse = async (req, res) => {
     }
 
     if (name) {
-      console.log(`name: ${name}`);
       course.name = name;
     }
 

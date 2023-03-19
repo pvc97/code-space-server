@@ -44,5 +44,6 @@
   "new_password_same_as_old": "Mật khẩu mới không được giống mật khẩu cũ",
   "email_already_exists": "Email đã tồn tại",
   "all_and_only_last_cannot_use_at_the_same_time": "Không thể sử dụng cùng lúc all và onlyLast",
-  "problem_has_no_test_case": "Bài tập không có test case"
+  "problem_has_no_test_case": "Bài tập không có test case",
+  "required_point_per_test_case": "Điểm cho mỗi test case không được để trống"
 }

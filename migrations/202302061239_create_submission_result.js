@@ -15,6 +15,7 @@ module.exports = {
           model: 'TestCases',
           key: 'id',
         },
+        onDelete: 'CASCADE',
       },
       output: {
         type: Sequelize.TEXT,
