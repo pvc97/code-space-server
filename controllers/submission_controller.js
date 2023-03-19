@@ -127,7 +127,7 @@ const submissionCallback = async (req, res) => {
 
 const createSubmission = async (req, res) => {
   try {
-    // Step 1:
+    // Step 1: Get body information
     // Authenticate middleware has attached the user to the request object
     const userId = req.user.id;
     const sourceCode = req.body.sourceCode;
@@ -145,7 +145,7 @@ const createSubmission = async (req, res) => {
         .send({ error: translate('required_problem_id', req.hl) });
     }
 
-    // Step 2:
+    // Step 2: Find problem and check if it exists
     const problem = await Problem.findByPk(problemId, {
       include: {
         model: TestCase,
@@ -171,7 +171,7 @@ const createSubmission = async (req, res) => {
         .send({ error: translate('invalid_problem_id', req.hl) });
     }
 
-    // Step 3:
+    // Step 3: Return submission id to client
     const submission = await Submission.create({
       sourceCode,
       createdBy: userId,
@@ -180,7 +180,7 @@ const createSubmission = async (req, res) => {
 
     res.status(201).send({ data: { id: submission.id } });
 
-    // Step 4:
+    // Step 4: Get all test cases
     const testCases = problem.testCases;
     const inputSubmissions = [];
     for (testCase of testCases) {
@@ -198,7 +198,7 @@ const createSubmission = async (req, res) => {
     // Step 5: Submit code to Judge0
     const tokens = await submit(inputSubmissions);
 
-    // Save list of submissionResult to database
+    // Save list of submissionResult to database with tokes from Judge0
     const submissionResults = [];
     for (var i = 0; i < tokens.length; ++i) {
       const submissionResult = {
