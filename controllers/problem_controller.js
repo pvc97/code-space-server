@@ -330,7 +330,15 @@ const updateProblem = async (req, res) => {
       }
     }
 
-    if (testCases && testCases.length > 0) {
+    if (testCases) {
+      if (testCases.length === 0) {
+        return res
+          .status(400)
+          .send({
+            error: translate('requires_at_least_one_test_case', req.hl),
+          });
+      }
+
       // Delete all submission of this problem and delete all submissionResult of this submission
       // because I use cascade delete in model and migration
       await Submission.destroy({
@@ -358,7 +366,23 @@ const updateProblem = async (req, res) => {
 
     await problem.save();
 
-    return res.status(200).send({ data: problemId });
+    await problem.reload({
+      include: [
+        {
+          model: Language,
+          as: 'language',
+        },
+        {
+          model: TestCase,
+          as: 'testCases',
+          required: false, // If problem don't have test case, it still return problem
+          where: { active: true },
+          attributes: { exclude: ['problemId', 'createdAt', 'updatedAt'] },
+        },
+      ],
+    });
+
+    return res.status(200).send({ data: problem });
   } catch (error) {
     console.log(error);
     return res
