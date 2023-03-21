@@ -132,6 +132,7 @@ const getProblem = async (req, res) => {
       include.push({
         model: TestCase,
         as: 'testCases',
+        required: false, // If problem don't have test case, it still return problem
         where: { active: true },
         attributes: { exclude: ['problemId', 'createdAt', 'updatedAt'] },
       });
