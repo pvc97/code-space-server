@@ -134,7 +134,7 @@ const getProblem = async (req, res) => {
         as: 'testCases',
         required: false, // If problem don't have test case, it still return problem
         where: { active: true },
-        attributes: { exclude: ['problemId', 'createdAt', 'updatedAt'] },
+        attributes: ['stdin', 'expectedOutput', 'show'],
       });
     }
     // findByPk don't work with with where clause
@@ -332,11 +332,9 @@ const updateProblem = async (req, res) => {
 
     if (testCases) {
       if (testCases.length === 0) {
-        return res
-          .status(400)
-          .send({
-            error: translate('requires_at_least_one_test_case', req.hl),
-          });
+        return res.status(400).send({
+          error: translate('requires_at_least_one_test_case', req.hl),
+        });
       }
 
       // Delete all submission of this problem and delete all submissionResult of this submission
