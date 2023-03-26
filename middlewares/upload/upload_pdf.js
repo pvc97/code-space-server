@@ -53,7 +53,7 @@ const upload = multer({
   },
 }).single('pdfFile');
 
-const uploadPdf = (req, res, next) =>
+const uploadPdf = (req, res, next) => {
   upload(req, res, (error) => {
     if (error instanceof multer.MulterError) {
       if (error.code === 'LIMIT_FILE_SIZE') {
@@ -68,5 +68,5 @@ const uploadPdf = (req, res, next) =>
       next();
     }
   });
-
+};
 module.exports = uploadPdf;

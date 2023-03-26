@@ -237,7 +237,7 @@ const updateProblem = async (req, res) => {
   try {
     const problemId = req.params.id;
     const name = req.body.name;
-    const testCases = JSON.parse(req.body.testCases);
+    let testCases = req.body.testCases;
     const languageId = req.body.languageId;
     const courseId = req.body.courseId;
     const pointPerTestCase = req.body.pointPerTestCase;
@@ -331,6 +331,7 @@ const updateProblem = async (req, res) => {
     }
 
     if (testCases) {
+      testCases = JSON.parse(testCases);
       if (testCases.length === 0) {
         return res.status(400).send({
           error: translate('requires_at_least_one_test_case', req.hl),
@@ -379,6 +380,8 @@ const updateProblem = async (req, res) => {
         },
       ],
     });
+
+    problem.dataValues.numberOfTestCases = problem.testCases.length;
 
     return res.status(200).send({ data: problem });
   } catch (error) {
