@@ -447,9 +447,8 @@ const history = async (req, res) => {
       order: [['createdAt', 'DESC']],
     });
 
-    let correctTestCases = 0;
-
     submissions.forEach((submission) => {
+      let correctTestCases = 0;
       submission.submissionResults.forEach((submissionResult) => {
         if (submissionResult.correct) {
           correctTestCases++;
