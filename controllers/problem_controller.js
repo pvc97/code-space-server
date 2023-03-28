@@ -438,15 +438,18 @@ const history = async (req, res) => {
       order: [['createdAt', 'DESC']],
     });
 
+    let correctTestCases = 0;
+
     submissions.forEach((submission) => {
-      let numberOfCorrect = 0;
       submission.submissionResults.forEach((submissionResult) => {
         if (submissionResult.correct) {
-          numberOfCorrect++;
+          correctTestCases++;
         }
       });
 
-      submission.dataValues.completed = numberOfCorrect === numberOfTestCases;
+      submission.dataValues.numberOfTestCases = numberOfTestCases;
+      submission.dataValues.correctTestCases = correctTestCases;
+      submission.dataValues.pointPerTestCase = problem.pointPerTestCase;
       delete submission.dataValues.submissionResults;
     });
 
