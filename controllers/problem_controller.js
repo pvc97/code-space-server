@@ -426,6 +426,7 @@ const history = async (req, res) => {
         problemId: problemId,
         createdBy: userId,
       },
+      attributes: ['id', 'sourceCode', 'createdAt'],
       include: [
         {
           model: SubmissionResult,
