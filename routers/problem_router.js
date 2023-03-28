@@ -2,8 +2,9 @@ const express = require('express');
 const { authenticate } = require('../middlewares/auth/authenticate');
 const { authorize } = require('../middlewares/auth/authorize');
 const {
-  createProblem,
+  history,
   getProblem,
+  createProblem,
   deleteProblem,
   updateProblem,
 } = require('../controllers/problem_controller');
@@ -37,5 +38,8 @@ problemRouter.put(
   uploadPdf,
   updateProblem
 );
+
+// Get problem history
+problemRouter.get('/:id/history', authenticate, history);
 
 module.exports = problemRouter;

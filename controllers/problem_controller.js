@@ -6,6 +6,7 @@ const {
   TestCase,
   Role,
   Submission,
+  SubmissionResult,
   sequelize,
 } = require('../models');
 const fs = require('fs');
@@ -392,9 +393,76 @@ const updateProblem = async (req, res) => {
   }
 };
 
+const history = async (req, res) => {
+  try {
+    const problemId = req.params.id;
+    const userId = req.user.id;
+
+    const problem = await Problem.findOne({
+      where: {
+        id: problemId,
+        active: true,
+      },
+      include: [
+        {
+          model: TestCase,
+          as: 'testCases',
+          required: false,
+          attributes: ['id'],
+        },
+      ],
+    });
+
+    if (!problem) {
+      return res
+        .status(400)
+        .send({ error: translate('invalid_problem_id', req.hl) });
+    }
+
+    const numberOfTestCases = problem.testCases.length;
+
+    const submissions = await Submission.findAll({
+      where: {
+        problemId: problemId,
+        createdBy: userId,
+      },
+      attributes: ['id', 'sourceCode', 'createdAt'],
+      include: [
+        {
+          model: SubmissionResult,
+          as: 'submissionResults',
+          required: false,
+          attributes: ['correct'],
+        },
+      ],
+      order: [['createdAt', 'DESC']],
+    });
+
+    submissions.forEach((submission) => {
+      let numberOfCorrect = 0;
+      submission.submissionResults.forEach((submissionResult) => {
+        if (submissionResult.correct) {
+          numberOfCorrect++;
+        }
+      });
+
+      submission.dataValues.completed = numberOfCorrect === numberOfTestCases;
+      delete submission.dataValues.submissionResults;
+    });
+
+    return res.status(200).send({ data: submissions });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
-  createProblem,
+  history,
   getProblem,
+  createProblem,
   updateProblem,
   deleteProblem,
 };
