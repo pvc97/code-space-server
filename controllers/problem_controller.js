@@ -1,4 +1,7 @@
+'use strict';
+
 const translate = require('../utils/translate');
+const { DEFAULT_LIMIT, DEFAULT_PAGE } = require('../constants/constants');
 const {
   Language,
   Course,
@@ -395,6 +398,10 @@ const updateProblem = async (req, res) => {
 
 const history = async (req, res) => {
   try {
+    const limit = req.query.limit * 1 || DEFAULT_LIMIT;
+    const page = req.query.page * 1 || DEFAULT_PAGE;
+    const offset = (page - 1) * limit;
+
     const problemId = req.params.id;
     const userId = req.user.id;
 
@@ -426,6 +433,8 @@ const history = async (req, res) => {
         problemId: problemId,
         createdBy: userId,
       },
+      limit: limit,
+      offset: offset,
       attributes: ['id', 'sourceCode', 'createdAt'],
       include: [
         {
