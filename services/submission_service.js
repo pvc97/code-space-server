@@ -5,16 +5,22 @@ const apiProvider = require('./api_provider');
  * Then return list of tokens
  */
 const submit = async (submissions) => {
-  const response = await apiProvider.post('/submissions/batch', {
-    submissions,
-    params: {
-      base64_encoded: true,
-    },
-  });
+  try {
+    const response = await apiProvider.post('/submissions/batch', {
+      submissions,
+      params: {
+        base64_encoded: true,
+      },
+    });
 
-  const tokens = response.data.map((submission) => submission.token);
+    const tokens = response.data.map((submission) => submission.token);
 
-  return tokens;
+    return tokens;
+  } catch (error) {
+    // If judge0 api is down, return empty list of tokens
+    console.log('Judge0 API is down');
+    return [];
+  }
 };
 
 module.exports = {
