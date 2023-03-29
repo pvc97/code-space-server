@@ -417,6 +417,10 @@ const history = async (req, res) => {
           required: false,
           attributes: ['id'],
         },
+        {
+          model: Language,
+          as: 'language',
+        },
       ],
     });
 
@@ -458,7 +462,7 @@ const history = async (req, res) => {
       submission.dataValues.numberOfTestCases = numberOfTestCases;
       submission.dataValues.correctTestCases = correctTestCases;
       submission.dataValues.pointPerTestCase = problem.pointPerTestCase;
-      submission.dataValues.languageId = problem.languageId;
+      submission.dataValues.language = problem.language;
       delete submission.dataValues.submissionResults;
     });
 
