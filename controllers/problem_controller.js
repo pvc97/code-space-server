@@ -458,6 +458,7 @@ const history = async (req, res) => {
       submission.dataValues.numberOfTestCases = numberOfTestCases;
       submission.dataValues.correctTestCases = correctTestCases;
       submission.dataValues.pointPerTestCase = problem.pointPerTestCase;
+      submission.dataValues.languageId = problem.languageId;
       delete submission.dataValues.submissionResults;
     });
 
