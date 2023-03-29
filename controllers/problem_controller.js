@@ -369,25 +369,16 @@ const updateProblem = async (req, res) => {
 
     await problem.save();
 
-    await problem.reload({
-      include: [
-        {
-          model: Language,
-          as: 'language',
-        },
-        {
-          model: TestCase,
-          as: 'testCases',
-          required: false, // If problem don't have test case, it still return problem
-          where: { active: true },
-          attributes: { exclude: ['problemId', 'createdAt', 'updatedAt'] },
-        },
-      ],
+    return res.status(200).send({
+      data: {
+        id: problem.id,
+        name: problem.name,
+        completed: false,
+        // Because only teacher can update problem
+        // And in the list of problem ui, completed does not show for teacher (only for student)
+        // So I set it to false here
+      },
     });
-
-    problem.dataValues.numberOfTestCases = problem.testCases.length;
-
-    return res.status(200).send({ data: problem });
   } catch (error) {
     console.log(error);
     return res

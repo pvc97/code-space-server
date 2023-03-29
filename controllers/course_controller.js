@@ -440,7 +440,7 @@ const updateCourse = async (req, res) => {
 
     await course.save();
 
-    // Use reload to add teacher
+    // Use reload to "add teacher", to course object
     const updatedCourse = await course.reload({
       include: [
         {
