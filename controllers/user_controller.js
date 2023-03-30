@@ -141,7 +141,15 @@ const createUser = async (req, res) => {
       roleType,
     });
 
-    return res.status(201).send({ data: { id: user.id } });
+    return res.status(201).send({
+      data: {
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        email: user.email,
+        roleType: user.roleType,
+      },
+    });
   } catch (error) {
     console.log(error);
     if (error.name === 'SequelizeUniqueConstraintError') {
