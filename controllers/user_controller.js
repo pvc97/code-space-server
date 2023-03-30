@@ -145,8 +145,12 @@ const createUser = async (req, res) => {
 };
 
 const deleteUser = async (req, res) => {
-  const { id } = req.params;
   try {
+    const admin = 'admin';
+    const { id } = req.params;
+    const currentUserId = req.user.id;
+    const currentUsername = req.user.username;
+
     const user = await User.findOne({
       where: {
         id: id,
@@ -160,11 +164,18 @@ const deleteUser = async (req, res) => {
         .send({ error: translate('invalid_user_id', req.hl) });
     }
 
-    // Manager can not delete themselves or other managers
-    if (user.roleType === Role.Manager) {
+    // Only manager with username 'admin' can delete other managers
+    if (user.roleType === Role.Manager && currentUsername !== admin) {
       return res
         .status(403)
         .send({ error: translate('permission_denied', req.hl) });
+    }
+
+    // But admin can not delete himself
+    if (user.id === currentUserId) {
+      return res
+        .status(400)
+        .send({ error: translate('cannot_delete_yourself', req.hl) });
     }
 
     // Have to put all transaction to each query to able to rollback
