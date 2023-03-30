@@ -15,7 +15,7 @@ module.exports = {
       [
         {
           id: uuidv4(),
-          username: 'manager',
+          username: 'admin',
           name: 'Phạm Văn Cường',
           email: 'cuongpv@gmail.com',
           password: hashedPassword,
