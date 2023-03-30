@@ -111,7 +111,9 @@ const createProblem = async (req, res) => {
       return problemResult;
     });
 
-    return res.status(201).send({ data: { id: problem.id } });
+    return res
+      .status(201)
+      .send({ data: { id: problem.id, name: problem.name, completed: false } });
   } catch (error) {
     console.log(error);
     return res
