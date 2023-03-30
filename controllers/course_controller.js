@@ -371,6 +371,19 @@ const createCourse = async (req, res) => {
         .send({ error: translate('required_teacher_id', req.hl) });
     }
 
+    const teacher = await User.findOne({
+      where: {
+        id: teacherId,
+        active: true,
+      },
+    });
+
+    if (!teacher) {
+      return res
+        .status(400)
+        .send({ error: translate('invalid_teacher_id', req.hl) });
+    }
+
     // Create new course
     const course = await Course.create({
       name,
@@ -379,7 +392,18 @@ const createCourse = async (req, res) => {
       teacherId,
     });
 
-    return res.status(201).send({ data: course });
+    return res.status(201).send({
+      data: {
+        id: course.id,
+        name: course.name,
+        code: course.code,
+        teacher: {
+          id: teacher.id,
+          name: teacher.name,
+          email: teacher.email,
+        },
+      },
+    });
   } catch (error) {
     console.log(error);
     switch (error.name) {
