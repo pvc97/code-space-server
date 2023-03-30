@@ -87,9 +87,12 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+// Only manager with username 'admin' can create new manager
 const createUser = async (req, res) => {
   try {
     const { username, name, email, password, roleType } = req.body;
+    const admin = 'admin';
+    const mangerUsername = req.user.username;
 
     if (!username) {
       return res
@@ -121,6 +124,12 @@ const createUser = async (req, res) => {
         .send({ error: translate('required_role_type', req.hl) });
     }
 
+    if (roleType === Role.Manager && mangerUsername !== admin) {
+      return res
+        .status(403)
+        .send({ error: translate('permission_denied', req.hl) });
+    }
+
     const hashedPassword = await bcryptjs.hash(password, PASSWORD_SALT_LENGTH);
 
     // Register can only create student account
@@ -145,8 +154,12 @@ const createUser = async (req, res) => {
 };
 
 const deleteUser = async (req, res) => {
-  const { id } = req.params;
   try {
+    const admin = 'admin';
+    const { id } = req.params;
+    const currentUserId = req.user.id;
+    const currentUsername = req.user.username;
+
     const user = await User.findOne({
       where: {
         id: id,
@@ -160,11 +173,18 @@ const deleteUser = async (req, res) => {
         .send({ error: translate('invalid_user_id', req.hl) });
     }
 
-    // Manager can not delete themselves or other managers
-    if (user.roleType === Role.Manager) {
+    // Only manager with username 'admin' can delete other managers
+    if (user.roleType === Role.Manager && currentUsername !== admin) {
       return res
         .status(403)
         .send({ error: translate('permission_denied', req.hl) });
+    }
+
+    // But admin can not delete himself
+    if (user.id === currentUserId) {
+      return res
+        .status(400)
+        .send({ error: translate('cannot_delete_yourself', req.hl) });
     }
 
     // Have to put all transaction to each query to able to rollback
@@ -195,21 +215,24 @@ const deleteUser = async (req, res) => {
 };
 
 // Update user info
-// Manager can update all user info
+// Manager can update all user info except other managers
+// Only manager with username 'admin' can update other managers :)
 // Or user can update their own info
 // If update success, return updated user info instead of userId
 // Because FE need to save new user info to local storage
 const updateUser = async (req, res) => {
   try {
+    const admin = 'admin';
     const userIdToUpdate = req.params.id;
     const roleType = req.user.roleType;
     const currentUserId = req.user.id;
-
+    const currentUsername = req.user.username;
     const { name, email } = req.body;
 
     let canUpdate = false;
 
     // Manager can update all user info except other managers
+    // Only manager with username 'admin' can update other managers :)
     if (canUpdate === false && roleType === Role.Manager) {
       canUpdate = true;
     }
@@ -236,7 +259,12 @@ const updateUser = async (req, res) => {
     }
 
     // Check if manager is trying to update other manager or not
-    if (user.id !== currentUserId && user.roleType === Role.Manager) {
+    // Only manager with username 'admin' can update other managers
+    if (
+      user.id !== currentUserId &&
+      user.roleType === Role.Manager &&
+      currentUsername !== admin
+    ) {
       return res
         .status(403)
         .send({ error: translate('permission_denied', req.hl) });
@@ -334,9 +362,12 @@ const changePassword = async (req, res) => {
 
 // Only manager can reset user password
 // Manager can reset user password without knowing old password
+// Only manager with username 'admin' can reset other managers password
 const resetPassword = async (req, res) => {
   try {
+    const admin = 'admin';
     const { userId, newPassword } = req.body;
+    const currentUsername = req.user.username;
 
     if (!userId) {
       return res
@@ -350,19 +381,19 @@ const resetPassword = async (req, res) => {
         .send({ error: translate('required_new_password', req.hl) });
     }
 
-    const user = await User.scope(User.withPassword).findOne({
+    const targetUser = await User.scope(User.withPassword).findOne({
       where: { id: userId, active: true },
       attributes: ['id', 'password', 'roleType'],
     });
 
-    if (!user) {
+    if (!targetUser) {
       return res.status(403).send({
         error: translate('invalid_user_id', req.hl),
       });
     }
 
-    // Manager can't reset password for managers including themselves
-    if (user.roleType === Role.Manager) {
+    // Only manager with username 'admin' can reset other managers password
+    if (targetUser.roleType === Role.Manager && currentUsername !== admin) {
       return res
         .status(403)
         .send({ error: translate('permission_denied', req.hl) });
@@ -373,11 +404,11 @@ const resetPassword = async (req, res) => {
       PASSWORD_SALT_LENGTH
     );
 
-    await user.update({ password: hashedPassword });
+    await targetUser.update({ password: hashedPassword });
 
     return res.status(200).send({
       data: {
-        id: user.id,
+        id: targetUser.id,
       },
     });
   } catch (error) {

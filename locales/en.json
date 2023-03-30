@@ -45,5 +45,6 @@
   "email_already_exists": "Email already exists",
   "all_and_only_last_cannot_use_at_the_same_time": "All and onlyLast cannot use at the same time",
   "problem_has_no_test_case": "Problem has no test case",
-  "required_point_per_test_case": "Required point per test case"
+  "required_point_per_test_case": "Required point per test case",
+  "cannot_delete_yourself": "Cannot delete yourself"
 }
