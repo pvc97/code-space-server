@@ -25,6 +25,16 @@ module.exports = {
         },
         {
           id: uuidv4(),
+          username: 'manager',
+          name: 'Phạm Văn Cừn',
+          email: 'cuongpv@gmail.com',
+          password: hashedPassword,
+          roleType: 'manager',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: uuidv4(),
           username: 'student',
           name: 'Phạm Student',
           email: 'cuongpv1@gmail.com',

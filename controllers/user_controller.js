@@ -195,21 +195,24 @@ const deleteUser = async (req, res) => {
 };
 
 // Update user info
-// Manager can update all user info
+// Manager can update all user info except other managers
+// Only manager with username 'admin' can update other managers :)
 // Or user can update their own info
 // If update success, return updated user info instead of userId
 // Because FE need to save new user info to local storage
 const updateUser = async (req, res) => {
   try {
+    const admin = 'admin';
     const userIdToUpdate = req.params.id;
     const roleType = req.user.roleType;
     const currentUserId = req.user.id;
-
+    const currentUsername = req.user.username;
     const { name, email } = req.body;
 
     let canUpdate = false;
 
     // Manager can update all user info except other managers
+    // Only manager with username 'admin' can update other managers :)
     if (canUpdate === false && roleType === Role.Manager) {
       canUpdate = true;
     }
@@ -236,7 +239,12 @@ const updateUser = async (req, res) => {
     }
 
     // Check if manager is trying to update other manager or not
-    if (user.id !== currentUserId && user.roleType === Role.Manager) {
+    // Only manager with username 'admin' can update other managers
+    if (
+      user.id !== currentUserId &&
+      user.roleType === Role.Manager &&
+      currentUsername !== admin
+    ) {
       return res
         .status(403)
         .send({ error: translate('permission_denied', req.hl) });
