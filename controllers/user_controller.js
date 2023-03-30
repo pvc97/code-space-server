@@ -87,9 +87,12 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+// Only manager with username 'admin' can create new manager
 const createUser = async (req, res) => {
   try {
     const { username, name, email, password, roleType } = req.body;
+    const admin = 'admin';
+    const mangerUsername = req.user.username;
 
     if (!username) {
       return res
@@ -119,6 +122,12 @@ const createUser = async (req, res) => {
       return res
         .status(400)
         .send({ error: translate('required_role_type', req.hl) });
+    }
+
+    if (roleType === Role.Manager && mangerUsername !== admin) {
+      return res
+        .status(403)
+        .send({ error: translate('permission_denied', req.hl) });
     }
 
     const hashedPassword = await bcryptjs.hash(password, PASSWORD_SALT_LENGTH);
