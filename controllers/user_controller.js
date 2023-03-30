@@ -342,9 +342,12 @@ const changePassword = async (req, res) => {
 
 // Only manager can reset user password
 // Manager can reset user password without knowing old password
+// Only manager with username 'admin' can reset other managers password
 const resetPassword = async (req, res) => {
   try {
+    const admin = 'admin';
     const { userId, newPassword } = req.body;
+    const currentUsername = req.user.username;
 
     if (!userId) {
       return res
@@ -358,19 +361,19 @@ const resetPassword = async (req, res) => {
         .send({ error: translate('required_new_password', req.hl) });
     }
 
-    const user = await User.scope(User.withPassword).findOne({
+    const targetUser = await User.scope(User.withPassword).findOne({
       where: { id: userId, active: true },
       attributes: ['id', 'password', 'roleType'],
     });
 
-    if (!user) {
+    if (!targetUser) {
       return res.status(403).send({
         error: translate('invalid_user_id', req.hl),
       });
     }
 
-    // Manager can't reset password for managers including themselves
-    if (user.roleType === Role.Manager) {
+    // Only manager with username 'admin' can reset other managers password
+    if (targetUser.roleType === Role.Manager && currentUsername !== admin) {
       return res
         .status(403)
         .send({ error: translate('permission_denied', req.hl) });
@@ -381,11 +384,11 @@ const resetPassword = async (req, res) => {
       PASSWORD_SALT_LENGTH
     );
 
-    await user.update({ password: hashedPassword });
+    await targetUser.update({ password: hashedPassword });
 
     return res.status(200).send({
       data: {
-        id: user.id,
+        id: targetUser.id,
       },
     });
   } catch (error) {
