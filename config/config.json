@@ -3,7 +3,7 @@
     "username": "root",
     "password": "1997",
     "database": "code_space_db",
-    "host": "host.docker.internal",
+    "host": "127.0.0.1",
     "dialect": "mysql",
     "port": 1997
   },
@@ -17,9 +17,9 @@
   },
   "production": {
     "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
+    "password": "1997",
+    "database": "code_space_db",
+    "host": "host.docker.internal",
     "dialect": "mysql",
     "port": 1997
   }
