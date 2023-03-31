@@ -3,7 +3,7 @@
     "username": "root",
     "password": "1997",
     "database": "code_space_db",
-    "host": "127.0.0.1",
+    "host": "host.docker.internal",
     "dialect": "mysql",
     "port": 1997
   },
