@@ -189,7 +189,7 @@ const createSubmission = async (req, res) => {
         language_id: problem.languageId,
         stdin: testCase.stdin,
         expected_output: testCase.expectedOutput,
-        callback_url: `${process.env.DOCKER_LOCALHOST}/api/v1/submissions/callback`,
+        callback_url: `${process.env.NODEJS_LOCALHOST}/api/v1/submissions/callback`,
       };
 
       inputSubmissions.push(submission);
