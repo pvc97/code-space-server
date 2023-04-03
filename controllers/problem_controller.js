@@ -17,7 +17,7 @@ const fs = require('fs');
 const createProblem = async (req, res) => {
   try {
     // console.log(req);
-    // Only teacher can create problem,
+    // Only teacher of current course can create problem,
     // Use authorization middleware to check if user is teacher
     const courseId = req.body.courseId;
     const name = req.body.name;
@@ -26,6 +26,7 @@ const createProblem = async (req, res) => {
     const pointPerTestCase = req.body.pointPerTestCase;
     const file = req.file;
     const multerError = req.multerError;
+    const teacherId = req.user.id;
 
     if (multerError) {
       return res.status(400).send({ error: translate(multerError, req.hl) });
@@ -57,6 +58,21 @@ const createProblem = async (req, res) => {
         .send({ error: translate('required_problem_name', req.hl) });
     }
 
+    // Check if course exists
+    const course = await Course.findByPk(courseId);
+    if (!course) {
+      return res
+        .status(400)
+        .send({ error: translate('invalid_course_id', req.hl) });
+    }
+
+    // Check if teacher is teacher of current course
+    if (course.teacherId !== teacherId) {
+      return res
+        .status(403)
+        .send({ error: translate('permission_denied', req.hl) });
+    }
+
     // Khi update thì có trường hợp là thêm test case mới
     // sửa test case cũ và xóa test case cũ
     // Khi test case thay đổi thì phải chấm lại toàn bộ bài làm ứng với test case đó
@@ -74,13 +90,6 @@ const createProblem = async (req, res) => {
         .send({ error: translate('required_language_id', req.hl) });
     }
 
-    // Check if course exists
-    const course = await Course.findByPk(courseId);
-    if (!course) {
-      return res
-        .status(400)
-        .send({ error: translate('invalid_course_id', req.hl) });
-    }
     // Check if language exists
     const language = await Language.findByPk(languageId);
     if (!language) {
