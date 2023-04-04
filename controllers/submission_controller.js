@@ -146,7 +146,7 @@ const createSubmission = async (req, res) => {
     }
 
     // Step 2: Find problem and check if it exists
-    const problem = await Problem.findByPk(problemId, {
+    let problem = await Problem.findByPk(problemId, {
       include: {
         model: TestCase,
         as: 'testCases',
@@ -178,13 +178,12 @@ const createSubmission = async (req, res) => {
       problemId,
     });
 
-    res.status(201).send({ data: { id: submission.id } });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({ error: translate('internal_server_error', req.hl) });
-  }
+    // I've tried to return submission.id to client right after creating submission
+    // and move step 4 and step 5 outside of try catch block
+    // But it cause problem can not access outside of try catch block
+    // So I have to return submission.id to client after step 4 and step 5
+    // https://stackoverflow.com/questions/64846360/declaring-immutable-variable-in-try-catch-block-that-is-accessible-outside-the
 
-  try {
     // Step 4: Get all test cases
     const testCases = problem.testCases;
     const inputSubmissions = [];
@@ -216,8 +215,11 @@ const createSubmission = async (req, res) => {
     }
 
     await SubmissionResult.bulkCreate(submissionResults);
+
+    res.status(201).send({ data: { id: submission.id } });
   } catch (error) {
     console.log(error);
+    res.status(500).send({ error: translate('internal_server_error', req.hl) });
   }
 };
 
