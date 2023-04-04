@@ -179,7 +179,12 @@ const createSubmission = async (req, res) => {
     });
 
     res.status(201).send({ data: { id: submission.id } });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ error: translate('internal_server_error', req.hl) });
+  }
 
+  try {
     // Step 4: Get all test cases
     const testCases = problem.testCases;
     const inputSubmissions = [];
@@ -197,12 +202,7 @@ const createSubmission = async (req, res) => {
 
     // Step 5: Submit code to Judge0
     const tokens = await submit(inputSubmissions);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({ error: translate('internal_server_error', req.hl) });
-  }
 
-  try {
     // Save list of submissionResult to database with tokes from Judge0
     const submissionResults = [];
     for (var i = 0; i < tokens.length; ++i) {
