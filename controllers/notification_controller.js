@@ -70,9 +70,34 @@ const updateFcmToken = async (req, res) => {
 
     const fcmToken = await FCMToken.findOne({
       where: {
-        userId,
+        token: token,
       },
     });
+
+    if (!fcmToken) {
+      // expiresAt 30 days from now
+      const current = new Date();
+      const expiresAt = date.setDate(current.getDate() + 30);
+
+      await FCMToken.create({
+        token: token,
+        userId: userId,
+        expiresAt: expiresAt,
+      });
+    } else {
+      await FCMToken.update(
+        {
+          userId: userId,
+        },
+        {
+          where: {
+            token: token,
+          },
+        }
+      );
+    }
+
+    return res.sendStatus(204);
   } catch (error) {
     console.log(error);
     return res
