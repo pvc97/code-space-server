@@ -9,7 +9,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate({ User, StudentCourse }) {
       Course.belongsTo(User, { foreignKey: 'teacherId', as: 'teacher' }); // A course only has one teacher
-      Course.hasMany(StudentCourse, { foreignKey: 'courseId', as: 'students' }); // A course has many students
+      Course.hasMany(StudentCourse, {
+        foreignKey: 'courseId',
+        as: 'studentCourses',
+      }); // A course has many students
     }
   }
   Course.init(

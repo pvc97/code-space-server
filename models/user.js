@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       Course,
       StudentCourse,
       Submission,
+      UserNotification,
     }) {
       User.belongsTo(Role, {
         foreignKey: 'roleType',
@@ -23,6 +24,11 @@ module.exports = (sequelize, DataTypes) => {
       // Have to add foreignKey: 'createdBy' to fix change UserId to createdBy in Submission model
       // If not, it will be a error: Error: Unknown column 'UserId' in 'field list'
       User.hasMany(Submission, { foreignKey: 'createdBy', as: 'submissions' });
+
+      User.hasMany(UserNotification, {
+        foreignKey: 'userId',
+        as: 'userNotifications',
+      });
     }
   }
 
