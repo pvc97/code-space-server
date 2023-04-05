@@ -74,10 +74,12 @@ const updateFcmToken = async (req, res) => {
       },
     });
 
+    const current = new Date();
+    // Create expiresAt is 30 days from now
+    const expiresAt = current.setDate(current.getDate() + 30);
+
     if (!fcmTokenModel) {
-      // expiresAt 30 days from now
-      const current = new Date();
-      const expiresAt = current.setDate(current.getDate() + 30);
+      // When user login for the first time in a new device,
 
       await FCMToken.create({
         token: fcmToken,
@@ -85,9 +87,17 @@ const updateFcmToken = async (req, res) => {
         expiresAt: expiresAt,
       });
     } else {
+      // User open app again in the same device
+      // or user logout and login again in the same device
+      // or user logout and login another account in the same device
+      // => update userId
+      // => update expiresAt
+
       await FCMToken.update(
         {
           userId: userId,
+          userId: userId,
+          expiresAt: expiresAt,
         },
         {
           where: {
