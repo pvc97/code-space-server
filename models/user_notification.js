@@ -32,5 +32,5 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: false,
     }
   );
-  return StudentCourse;
+  return UserNotification;
 };
