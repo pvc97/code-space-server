@@ -1,4 +1,6 @@
 const express = require('express');
+const { authenticate } = require('../middlewares/auth/authenticate');
+
 const {
   sendNotification,
   updateFcmToken,
@@ -8,6 +10,6 @@ const notificationRouter = express.Router();
 
 // Only teacher can get all languages
 notificationRouter.get('/', sendNotification);
-notificationRouter.put('/notifications', updateFcmToken);
+notificationRouter.put('/', authenticate, updateFcmToken);
 
 module.exports = notificationRouter;

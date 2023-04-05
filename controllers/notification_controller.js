@@ -51,10 +51,10 @@ const sendNotification = async (req, res) => {
 
 const updateFcmToken = async (req, res) => {
   try {
-    const { token } = req.body;
+    const fcmToken = req.body.fcmToken;
     const userId = req.user.id;
 
-    if (!token) {
+    if (!fcmToken) {
       return res
         .status(403)
         .send({ error: translate('token_required', req.hl) });
@@ -68,19 +68,19 @@ const updateFcmToken = async (req, res) => {
         .send({ error: translate('user_not_found', req.hl) });
     }
 
-    const fcmToken = await FCMToken.findOne({
+    const fcmTokenModel = await FCMToken.findOne({
       where: {
-        token: token,
+        token: fcmToken,
       },
     });
 
-    if (!fcmToken) {
+    if (!fcmTokenModel) {
       // expiresAt 30 days from now
       const current = new Date();
-      const expiresAt = date.setDate(current.getDate() + 30);
+      const expiresAt = current.setDate(current.getDate() + 30);
 
       await FCMToken.create({
-        token: token,
+        token: fcmToken,
         userId: userId,
         expiresAt: expiresAt,
       });
@@ -91,7 +91,7 @@ const updateFcmToken = async (req, res) => {
         },
         {
           where: {
-            token: token,
+            token: fcmToken,
           },
         }
       );
