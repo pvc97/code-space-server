@@ -26,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'FCMToken',
+      timestamps: false,
     }
   );
   return FCMToken;
