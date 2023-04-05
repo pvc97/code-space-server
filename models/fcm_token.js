@@ -14,8 +14,9 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
       },
       token: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
       },
       expiresAt: {
         type: DataTypes.DATE,

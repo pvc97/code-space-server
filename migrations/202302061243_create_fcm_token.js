@@ -9,8 +9,9 @@ module.exports = {
         primaryKey: true,
       },
       token: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING,
         allowNull: false,
+        unique: true,
       },
       userId: {
         type: Sequelize.UUID,

@@ -21,6 +21,9 @@ module.exports = (sequelize, DataTypes) => {
       token: {
         type: DataTypes.TEXT,
         allowNull: false,
+        // I can not use unique: true here because type of token is TEXT
+        // so MySql can not create index for it
+        // it only can create index for type of token is STRING (known length)
       },
       // userId: {
       //   type: DataTypes.UUID,

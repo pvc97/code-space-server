@@ -2,6 +2,7 @@
 const translate = require('../utils/translate');
 const admin = require('firebase-admin');
 const serviceAccount = require('../config/fb_fcm_key.json');
+const { User, FCMToken } = require('../models');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -48,6 +49,39 @@ const sendNotification = async (req, res) => {
   }
 };
 
+const updateFcmToken = async (req, res) => {
+  try {
+    const { token } = req.body;
+    const userId = req.user.id;
+
+    if (!token) {
+      return res
+        .status(403)
+        .send({ error: translate('token_required', req.hl) });
+    }
+
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res
+        .status(404)
+        .send({ error: translate('user_not_found', req.hl) });
+    }
+
+    const fcmToken = await FCMToken.findOne({
+      where: {
+        userId,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
   sendNotification,
+  updateFcmToken,
 };
