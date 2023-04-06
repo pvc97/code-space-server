@@ -1,21 +1,9 @@
 'use strict';
 const translate = require('../utils/translate');
-const admin = require('firebase-admin');
-const serviceAccount = require('../config/fb_fcm_key.json');
 const { User, FCMToken } = require('../models');
+const sendNotification = require('../services/notification_service');
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  // databaseURL: 'https://XXXX.firebaseio.com',
-  // databaseURL property is for the Firebase Realtime Database,
-  // it is an optional configuration option,
-  // and is only required if I need to access the Firebase Realtime Database
-});
-
-const sendNotification = async (req, res) => {
-  // message payload must less than 4KB
-  // https://stackoverflow.com/questions/70575492/firebase-admin-sdk-sendmulticast
-  // So if there are a lot of tokens, we should split them into multiple requests
+const testNotification = async (req, res) => {
   const message = {
     notification: {
       title: 'Hello!',
@@ -25,28 +13,14 @@ const sendNotification = async (req, res) => {
       foo: 'bar',
     },
     tokens: [
-      'cu27-QPwRE2sj__4jBFrHK:APA91bHHPA_AXINhHeRWy3MRHxVk6ElsJJvd-EK93yBTcdGwugE_Suf55XLf5vMp479tS0beO1kmRSz_dCpSlLGvkBeBrDb5lPpxlYJB8jcXQ4B5YpVk7NweibrIB6zvxzRpolYoxHbM',
+      'eT8YoM73SB6VGUX80cKLvN:APA91bHb5fo0oLHbh-b7CQqHgrTh858GtrPb2zDKi32Ss6fK8k-EE_5m0sYfnG9uFrZL32aQmUjuoMtUVnM4Y7NmAIH6Qjb_k1RgOigQCX7REYa8eCLgLi0ZfQXDHOoYrT6AUa44xhGn',
+      'eT8YoM73SB6VGUX80cKLvN:APA91bHb5fo0oLHbh-b7CQqHgrTh858GtrPb2zDKi32Ss6fK8k-EE_5m0sYfnG9uFrZL32aQmUjuoMtUVnM4Y7NmAIH6Qjb_k1RgOigQCX7REYa8eCLgLe0ZfQXDHOoYrT6AUa44xhGn',
+      'cAXubjR-RDmIHYjLJQrjOU:APA91bHqmb0zUNa01HPkYydDgCRSauT1OrUVHPY8sM6JuTOPm5SpdbPp1-cdJUNwXzlYAgYthQtTjOIaXtVdybcNc5OKvzntz8dl-e4O8c_QXSWFyUtiSsadN3e_yZoNIB4mqBxJrieM',
     ],
   };
 
-  // If I want to send a message to a single device,
-  // In the message payload, I should use token instead of tokens
-  // then use send() method instead of sendMulticast()
-
-  try {
-    // Note: A multicast message containing up to 500 tokens.
-    // How to split tokens into multiple requests?
-    // https://anonystick.com/blog-developer/sendmulticast-firebase-500-tokens-2021090696569871
-    const response = await admin.messaging().sendMulticast(message);
-    console.log('Successfully sent message:', response);
-
-    return res.status(200).send({ data: response });
-  } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .send({ error: translate('internal_server_error', req.hl) });
-  }
+  sendNotification(message);
+  return res.sendStatus(204);
 };
 
 const updateFcmToken = async (req, res) => {
@@ -117,6 +91,6 @@ const updateFcmToken = async (req, res) => {
 };
 
 module.exports = {
-  sendNotification,
+  testNotification,
   updateFcmToken,
 };
