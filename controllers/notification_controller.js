@@ -4,22 +4,14 @@ const { User, FCMToken } = require('../models');
 const sendNotification = require('../services/notification_service');
 
 const testNotification = async (req, res) => {
-  const message = {
-    notification: {
-      title: 'Hello!',
-      body: 'This is a test notification',
-    },
-    data: {
+  sendNotification(
+    'Hello!',
+    'This is a test notification',
+    {
       foo: 'bar',
     },
-    tokens: [
-      'eT8YoM73SB6VGUX80cKLvN:APA91bHb5fo0oLHbh-b7CQqHgrTh858GtrPb2zDKi32Ss6fK8k-EE_5m0sYfnG9uFrZL32aQmUjuoMtUVnM4Y7NmAIH6Qjb_k1RgOigQCX7REYa8eCLgLi0ZfQXDHOoYrT6AUa44xhGn',
-      'eT8YoM73SB6VGUX80cKLvN:APA91bHb5fo0oLHbh-b7CQqHgrTh858GtrPb2zDKi32Ss6fK8k-EE_5m0sYfnG9uFrZL32aQmUjuoMtUVnM4Y7NmAIH6Qjb_k1RgOigQCX7REYa8eCLgLe0ZfQXDHOoYrT6AUa44xhGn',
-      'cAXubjR-RDmIHYjLJQrjOU:APA91bHqmb0zUNa01HPkYydDgCRSauT1OrUVHPY8sM6JuTOPm5SpdbPp1-cdJUNwXzlYAgYthQtTjOIaXtVdybcNc5OKvzntz8dl-e4O8c_QXSWFyUtiSsadN3e_yZoNIB4mqBxJrieM',
-    ],
-  };
-
-  sendNotification(message);
+    ['4b768ae8-7050-4bb9-b6f2-e55fca326aa3']
+  );
   return res.sendStatus(204);
 };
 

@@ -41,20 +41,41 @@ admin.initializeApp({
 });
 
 // Send a message to multiple devices
-const sendNotification = async (message) => {
+const sendNotification = async (title, body, data, userIds) => {
   try {
-    if (message.tokens) {
-      // message.tokens defined
+    const message = {
+      notification: {
+        title,
+        body,
+      },
+      data,
+    };
+
+    const tokens = await FCMToken.findAll({
+      where: { userId: userIds },
+      attributes: ['token'],
+    });
+
+    if (tokens.length === 0) return;
+
+    // I don't check tokens.length == 1 to send a message to a single device with send() method
+    // because if token is invalid, send() method will throw an error instead of return a response
+    if (tokens.length <= 500) {
       // Send message to a multiple devices
+      message.tokens = tokens.map((token) => token.token);
       const response = await admin.messaging().sendMulticast(message);
-      //   console.log('response:', response);
       removeInvalidToken(message, response);
     } else {
-      // message.token defined
-      // Send message to a single device
-      const response = await admin.messaging().send(message);
-      //   console.log('response:', response);
-      removeInvalidToken(message, response);
+      // Send message to a 500 devices each time
+      const chunkSize = 500;
+      for (let i = 0; i < tokens.length; i += chunkSize) {
+        const chunk = tokens.slice(i, i + chunkSize);
+
+        message.tokens = chunk.map((token) => token.token);
+        const response = await admin.messaging().sendMulticast(message);
+
+        removeInvalidToken(message, response);
+      }
     }
   } catch (error) {
     console.log(error);
