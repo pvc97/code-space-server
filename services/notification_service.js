@@ -58,7 +58,7 @@ const sendNotification = async (title, body, data, userIds) => {
 
     if (tokens.length === 0) return;
 
-    // I don't check tokens.length == 1 to send a message to a single device with send() method
+    // I don't check tokens.length == 1 to send a message to a single device via send() method
     // because if token is invalid, send() method will throw an error instead of return a response
     if (tokens.length <= 500) {
       // Send message to a multiple devices
@@ -82,7 +82,6 @@ const sendNotification = async (title, body, data, userIds) => {
   }
 };
 
-// Send a message to a single device
 const removeInvalidToken = async (message, response) => {
   const tokensToRemove = [];
   response.responses.forEach((result, index) => {
