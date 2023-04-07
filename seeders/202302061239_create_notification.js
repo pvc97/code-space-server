@@ -9,13 +9,22 @@ module.exports = {
       [
         {
           id: uuidv4(),
-          content: 'Welcome to Code Space',
+          title: 'Hello',
+          body: 'Welcome to Code Space',
+          // Use JSON.stringify to convert object to string - when accessing data, use JSON.parse to convert string to object
+          data: JSON.stringify({
+            url: 'http://pvc97.me/code-space',
+          }),
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
           id: uuidv4(),
-          content: 'Phạm Văn Cường vừa chọc bạn',
+          title: 'Hello',
+          body: 'Welcome to Code Space',
+          data: JSON.stringify({
+            url: 'http://pvc97.me/code-space',
+          }),
           createdAt: new Date(),
           updatedAt: new Date(),
         },

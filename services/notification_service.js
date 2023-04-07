@@ -19,14 +19,14 @@ Example message payload:
 
     const message = {
         notification: {
-        title: 'Hello!',
-        body: 'This is a test notification',
+          title: 'Hello!',
+          body: 'This is a test notification',
         },
         data: {
-        foo: 'bar',
+          foo: 'bar',
         },
         tokens: [
-        'cu27-QPwRE2sj__4jBFrHK:APA91bHHPA_AXINhHeRWy3MRHxVk6ElsJJvd-EK93yBTcdGwugE_Suf55XLf5vMp479tS0beO1kmRSz_dCpSlLGvkBeBrDb5lPpxlYJB8jcXQ4B5YpVk7NweibrIB6zvxzRpolYoxHbM',
+          'cu27-QPwRE2sj__4jBFrHK:APA91bHHPA_AXINhHeRWy3MRHxVk6ElsJJvd-EK93yBTcdGwugE_Suf55XLf5vMp479tS0beO1kmRSz_dCpSlLGvkBeBrDb5lPpxlYJB8jcXQ4B5YpVk7NweibrIB6zvxzRpolYoxHbM',
         ],
     };
 

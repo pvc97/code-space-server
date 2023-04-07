@@ -21,8 +21,19 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      content: {
+      title: {
+        // One line of text
         type: DataTypes.STRING,
+        allowNull: false,
+      },
+      body: {
+        // One line of text
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      data: {
+        // JSON object
+        type: DataTypes.JSON,
         allowNull: false,
       },
     },

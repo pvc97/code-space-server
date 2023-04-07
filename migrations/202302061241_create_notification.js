@@ -8,8 +8,16 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      content: {
+      title: {
         type: Sequelize.STRING,
+        allowNull: false,
+      },
+      body: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      data: {
+        type: Sequelize.JSON,
         allowNull: false,
       },
       createdAt: {
