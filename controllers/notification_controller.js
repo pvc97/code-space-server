@@ -1,22 +1,29 @@
 'use strict';
 const translate = require('../utils/translate');
-const { User, FCMToken } = require('../models');
+const {
+  User,
+  FCMToken,
+  UserNotification,
+  Notification,
+  sequelize,
+} = require('../models');
+const { DEFAULT_LIMIT, DEFAULT_PAGE } = require('../constants/constants');
 const sendNotification = require('../services/notification_service');
 
-const testNotification = async (req, res) => {
-  sendNotification(
-    'Hello!',
-    'This is a test notification',
-    {
-      foo: 'bar',
-    },
-    [
-      '04f66c12-3421-4a71-9985-ed630ee56ad1',
-      'c69a7ecd-5638-428d-bf18-a1a448200a2b',
-    ]
-  );
-  return res.sendStatus(204);
-};
+// const testNotification = async (req, res) => {
+//   sendNotification(
+//     'Hello!',
+//     'This is a test notification',
+//     {
+//       foo: 'bar',
+//     },
+//     [
+//       '04f66c12-3421-4a71-9985-ed630ee56ad1',
+//       'c69a7ecd-5638-428d-bf18-a1a448200a2b',
+//     ]
+//   );
+//   return res.sendStatus(204);
+// };
 
 const updateFcmToken = async (req, res) => {
   try {
@@ -85,7 +92,49 @@ const updateFcmToken = async (req, res) => {
   }
 };
 
+const getAllNotifications = async (req, res) => {
+  try {
+    const limit = req.query.limit * 1 || DEFAULT_LIMIT;
+    // if req.query.limit is text => req.query.limit * 1 = NaN => limit = DEFAULT_LIMIT
+    const page = req.query.page * 1 || DEFAULT_PAGE;
+    const offset = (page - 1) * limit;
+    const userId = req.user.id;
+
+    // Get all notifications of user
+    // through UserNotification table
+    const notifications = await UserNotification.findAll({
+      where: {
+        userId: userId,
+      },
+      attributes: [
+        [sequelize.literal('notification.id'), 'id'],
+        [sequelize.literal('notification.title'), 'title'],
+        [sequelize.literal('notification.body'), 'body'],
+        [sequelize.literal('notification.data'), 'data'],
+        [sequelize.literal('notification.createdAt'), 'createdAt'],
+      ],
+      include: [
+        {
+          model: Notification,
+          as: 'notification',
+          attributes: [],
+        },
+      ],
+      limit: limit,
+      offset: offset,
+      order: [['createdAt', 'DESC']],
+    });
+
+    return res.status(200).send({ notifications });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .send({ error: translate('internal_server_error', req.hl) });
+  }
+};
+
 module.exports = {
-  testNotification,
   updateFcmToken,
+  getAllNotifications,
 };
