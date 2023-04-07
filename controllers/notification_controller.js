@@ -10,7 +10,10 @@ const testNotification = async (req, res) => {
     {
       foo: 'bar',
     },
-    ['4b768ae8-7050-4bb9-b6f2-e55fca326aa3']
+    [
+      '04f66c12-3421-4a71-9985-ed630ee56ad1',
+      'c69a7ecd-5638-428d-bf18-a1a448200a2b',
+    ]
   );
   return res.sendStatus(204);
 };

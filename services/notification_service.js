@@ -1,6 +1,6 @@
 const admin = require('firebase-admin');
 const serviceAccount = require('../config/fb_fcm_key.json');
-const { FCMToken } = require('../models');
+const { FCMToken, Notification, UserNotification } = require('../models');
 
 /*
 Example message payload:
@@ -43,6 +43,10 @@ admin.initializeApp({
 // Send a message to multiple devices
 const sendNotification = async (title, body, data, userIds) => {
   try {
+    // Save notification to database
+    saveNotification(title, body, data, userIds);
+
+    // Send notification to devices
     const message = {
       notification: {
         title,
@@ -100,6 +104,22 @@ const removeInvalidToken = async (message, response) => {
   if (tokensToRemove.length > 0) {
     await FCMToken.destroy({ where: { token: tokensToRemove } });
   }
+};
+
+const saveNotification = async (title, body, data, userIds) => {
+  const notification = await Notification.create({
+    title,
+    body,
+    data,
+  });
+
+  // Save notification to UserNotifications table
+  const notificationId = notification.id;
+  const userNotifications = userIds.map((userId) => ({
+    userId,
+    notificationId,
+  }));
+  await UserNotification.bulkCreate(userNotifications);
 };
 
 module.exports = sendNotification;
