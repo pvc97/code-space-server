@@ -48,5 +48,5 @@
   "problem_has_no_test_case": "Problem has no test case",
   "required_point_per_test_case": "Required point per test case",
   "cannot_delete_yourself": "Cannot delete yourself",
-  "problem_updated_please_resubmit": "Problem updated, please resubmit"
+  "problem_updated_please_resubmit": "Problem updated, please resubmit!"
 }

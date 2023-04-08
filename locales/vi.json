@@ -48,5 +48,5 @@
   "problem_has_no_test_case": "Bài tập không có test case",
   "required_point_per_test_case": "Điểm cho mỗi test case không được để trống",
   "cannot_delete_yourself": "Không thể xóa chính bạn",
-  "problem_updated_please_resubmit": "Bài tập đã được cập nhật, vui lòng làm lại"
+  "problem_updated_please_resubmit": "Bài tập đã được cập nhật, vui lòng làm lại!"
 }
