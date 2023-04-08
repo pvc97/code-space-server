@@ -1,4 +1,5 @@
 {
+  "code_space": "Code space",
   "login_invalid_username_or_password": "Sai tên đăng nhập hoặc mật khẩu",
   "internal_server_error": "Lỗi máy chủ",
   "invalid_token": "Token không hợp lệ",
@@ -46,5 +47,6 @@
   "all_and_only_last_cannot_use_at_the_same_time": "Không thể sử dụng cùng lúc all và onlyLast",
   "problem_has_no_test_case": "Bài tập không có test case",
   "required_point_per_test_case": "Điểm cho mỗi test case không được để trống",
-  "cannot_delete_yourself": "Không thể xóa chính bạn"
+  "cannot_delete_yourself": "Không thể xóa chính bạn",
+  "problem_updated_please_resubmit": "Bài tập đã được cập nhật, vui lòng làm lại!"
 }

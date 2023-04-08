@@ -1,4 +1,5 @@
 {
+  "code_space": "Code space",
   "login_invalid_username_or_password": "Invalid username or password",
   "internal_server_error": "Internal server error",
   "invalid_token": "Invalid token",
@@ -46,5 +47,6 @@
   "all_and_only_last_cannot_use_at_the_same_time": "All and onlyLast cannot use at the same time",
   "problem_has_no_test_case": "Problem has no test case",
   "required_point_per_test_case": "Required point per test case",
-  "cannot_delete_yourself": "Cannot delete yourself"
+  "cannot_delete_yourself": "Cannot delete yourself",
+  "problem_updated_please_resubmit": "Problem updated, please resubmit!"
 }

@@ -3,6 +3,7 @@
 const translate = require('../utils/translate');
 const { DEFAULT_LIMIT, DEFAULT_PAGE } = require('../constants/constants');
 const {
+  User,
   Language,
   Course,
   Problem,
@@ -12,6 +13,7 @@ const {
   SubmissionResult,
   sequelize,
 } = require('../models');
+const sendNotification = require('../services/notification_service');
 const fs = require('fs');
 
 const createProblem = async (req, res) => {
@@ -260,6 +262,8 @@ const updateProblem = async (req, res) => {
     const file = req.file;
     const multerError = req.multerError;
 
+    let deleteAllSubmissions = false; // If true, notify user that their submission will be deleted
+
     if (multerError) {
       return res.status(400).send({ error: translate(multerError, req.hl) });
     }
@@ -311,13 +315,7 @@ const updateProblem = async (req, res) => {
 
       problem.languageId = languageId;
 
-      // Delete all submission of this problem and delete all submissionResult of this submission
-      // because I use cascade delete in model and migration
-      await Submission.destroy({
-        where: {
-          problemId: problemId,
-        },
-      });
+      deleteAllSubmissions = true;
     }
 
     if (pointPerTestCase) {
@@ -337,11 +335,7 @@ const updateProblem = async (req, res) => {
       problem.pdfPath = pdfPath;
 
       if (pdfDeleteSubmission === 'true') {
-        await Submission.destroy({
-          where: {
-            problemId: problemId,
-          },
-        });
+        deleteAllSubmissions = true;
       }
     }
 
@@ -352,14 +346,6 @@ const updateProblem = async (req, res) => {
           error: translate('requires_at_least_one_test_case', req.hl),
         });
       }
-
-      // Delete all submission of this problem and delete all submissionResult of this submission
-      // because I use cascade delete in model and migration
-      await Submission.destroy({
-        where: {
-          problemId: problemId,
-        },
-      });
 
       // Delete all test cases of problem and delete all submissionResult of this test case
       // because I use cascade delete in model and migration
@@ -376,9 +362,59 @@ const updateProblem = async (req, res) => {
       }));
 
       await TestCase.bulkCreate(testCasesResult);
+
+      deleteAllSubmissions = true;
     }
 
     await problem.save();
+
+    if (deleteAllSubmissions) {
+      // Find students submit this problem
+      const students = await Submission.findAll({
+        where: {
+          problemId: problemId,
+        },
+        attributes: [[sequelize.literal('user.id'), 'id']],
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: [],
+            where: {
+              roleType: Role.Student,
+            },
+          },
+        ],
+      });
+
+      // If teacher update problem 2 times, in the first time
+      // server will send notification to students
+      // but in the second time, server will not send notification to students
+      // because in the first time, all submission of this problem is deleted
+      // so students.length == 0
+
+      // Only send notification to students if students.length > 0
+      if (students.length > 0) {
+        // Send notification to students
+        const studentIds = students.map((student) => student.id);
+        sendNotification(
+          translate('code_space', req.hl),
+          translate('problem_updated_please_resubmit', req.hl),
+          {
+            foo: 'bar',
+          },
+          studentIds
+        );
+      }
+
+      // Delete all submission of this problem and delete all submissionResult of this submission
+      // because I use cascade delete in model and migration
+      await Submission.destroy({
+        where: {
+          problemId: problemId,
+        },
+      });
+    }
 
     return res.status(200).send({
       data: {
