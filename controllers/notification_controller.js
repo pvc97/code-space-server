@@ -10,20 +10,17 @@ const {
 const { DEFAULT_LIMIT, DEFAULT_PAGE } = require('../constants/constants');
 const sendNotification = require('../services/notification_service');
 
-// const testNotification = async (req, res) => {
-//   sendNotification(
-//     'Hello!',
-//     'This is a test notification',
-//     {
-//       foo: 'bar',
-//     },
-//     [
-//       '04f66c12-3421-4a71-9985-ed630ee56ad1',
-//       'c69a7ecd-5638-428d-bf18-a1a448200a2b',
-//     ]
-//   );
-//   return res.sendStatus(204);
-// };
+const testNotification = async (req, res) => {
+  sendNotification(
+    'Hello!',
+    'This is a test notification',
+    {
+      foo: 'bar',
+    },
+    ['3ee85d57-a284-4dce-b1e0-8b314f4bcabc']
+  );
+  return res.sendStatus(204);
+};
 
 const updateFcmToken = async (req, res) => {
   try {
@@ -137,4 +134,5 @@ const getAllNotifications = async (req, res) => {
 module.exports = {
   updateFcmToken,
   getAllNotifications,
+  testNotification,
 };

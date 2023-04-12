@@ -53,6 +53,9 @@ const sendNotification = async (title, body, data, userIds) => {
         body,
       },
       data,
+      android: {
+        priority: 'high',
+      },
     };
 
     const tokens = await FCMToken.findAll({
