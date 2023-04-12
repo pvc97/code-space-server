@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcryptjs = require('bcryptjs');
 const translate = require('../utils/translate');
-const { User, Role, RefreshToken } = require('../models');
+const { User, Role, RefreshToken, FCMToken } = require('../models');
 const {
   generateAccessToken,
   generateRefreshToken,
@@ -136,33 +136,32 @@ const login = async (req, res) => {
   }
 };
 
+// Delete refresh token and fcm token
+// Only delete refresh and fcm token of current device
+// Because user can login from multiple devices
 const logout = async (req, res) => {
   try {
-    const { refreshToken } = req.body;
+    const { refreshToken, fcmToken } = req.body;
 
-    if (!token) {
-      return res
-        .status(403)
-        .send({ error: translate('token_required', req.hl) });
+    if (!refreshToken) {
+      await RefreshToken.destroy({
+        where: {
+          token: refreshToken,
+        },
+      });
     }
 
-    await RefreshToken.destroy({
-      where: {
-        token: refreshToken,
-      },
-    });
+    if (!fcmToken) {
+      await FCMToken.destroy({
+        where: {
+          token: fcmToken,
+        },
+      });
+    }
 
-    res.sendStatus(204);
+    return res.sendStatus(204);
   } catch (error) {
     console.log(error);
-    if (
-      error instanceof jwt.JsonWebTokenError ||
-      error instanceof SyntaxError
-    ) {
-      return res
-        .status(401)
-        .send({ error: translate('invalid_token', req.hl) });
-    }
 
     return res
       .status(500)
@@ -175,34 +174,23 @@ const logout = async (req, res) => {
 // until they are expired.
 const logoutAll = async (req, res) => {
   try {
-    const { refreshToken } = req.body;
-
-    if (!refreshToken) {
-      return res
-        .status(403)
-        .send({ error: translate('token_required', req.hl) });
-    }
-
-    const decodedRefreshToken = decodeRefreshToken(refreshToken);
+    const userId = req.user.id;
 
     await RefreshToken.destroy({
       where: {
-        userId: decodedRefreshToken.id,
+        userId: userId,
       },
     });
 
-    res.sendStatus(204);
+    await FCMToken.destroy({
+      where: {
+        userId: userId,
+      },
+    });
+
+    return res.sendStatus(204);
   } catch (error) {
     console.log(error);
-    if (
-      error instanceof jwt.JsonWebTokenError ||
-      error instanceof SyntaxError
-    ) {
-      console.log(error);
-      return res
-        .status(401)
-        .send({ error: translate('invalid_token', req.hl) });
-    }
 
     return res
       .status(500)
