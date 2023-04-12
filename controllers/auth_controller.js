@@ -143,7 +143,7 @@ const logout = async (req, res) => {
   try {
     const { refreshToken, fcmToken } = req.body;
 
-    if (!refreshToken) {
+    if (refreshToken) {
       await RefreshToken.destroy({
         where: {
           token: refreshToken,
@@ -151,7 +151,7 @@ const logout = async (req, res) => {
       });
     }
 
-    if (!fcmToken) {
+    if (fcmToken) {
       await FCMToken.destroy({
         where: {
           token: fcmToken,
