@@ -1,4 +1,4 @@
-# Command to delete expired refresh tokens
+# CronJob Commands
 
 node cron_job_scripts/delete_refresh_token.js
 node cron_job_scripts/delete_fcm_token.js
