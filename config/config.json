@@ -19,7 +19,7 @@
     "username": "root",
     "password": "1997",
     "database": "code_space_db",
-    "host": "172.18.0.1",
+    "host": "159.223.63.32",
     "dialect": "mysql",
     "port": 1997
   }
